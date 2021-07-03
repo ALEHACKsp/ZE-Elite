@@ -129,7 +129,7 @@ namespace HealthSprite
 
 		auto& pSprite = SpriteEntities[Index];
 
-		static auto CreateEntityByName = reinterpret_cast<CSprite * (*)(const char* className)>(Tools::FindPattern("client.dll", "55 8B EC E8 18 4D 04 00"));
+		static auto CreateEntityByName = reinterpret_cast<CSpriteTrail * (*)(const char* className)>(Tools::FindPattern("client.dll", "8B EC E8 ? ? ? ? FF 75 08 8B C8") - 1);
 
 		if (auto Entity = CreateEntityByName("env_sprite"); Entity)
 		{
