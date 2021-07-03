@@ -32,8 +32,6 @@ void ExpensiveTrail(CSpriteTrail*& SpriteEnt, CBaseEntity* pParent) {
 
             SpriteEnt->OnDataChanged(0);
 
-            static auto LookupAttachment = reinterpret_cast<int(__thiscall*)(void*, const char*)>(ClientModule + 0x85D30);
-
             SpriteEnt->FollowEntity(pParent, 1);
 
             if (!TrailMaterials.size()) return;
