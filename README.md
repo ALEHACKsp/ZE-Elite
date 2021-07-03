@@ -1,5 +1,5 @@
 # ZE-Elite v4
-ZE-Elite is a Counter-Strike: Source v91 Hack that makes your gameplay looks more comfortable.
+ZE-Elite is a Counter-Strike: Source v91 Hack that makes your gameplay looks Amazing
 
 # Requirements
 cstrike folder https://www.unknowncheats.me/forum/downloads.php?do=file&id=33716
