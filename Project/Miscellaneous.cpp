@@ -319,7 +319,7 @@ static void TriggerBot(CBaseEntity* pLocal, CUserCmd* cmd) noexcept {
 
 void KnifeBot(CBaseEntity* pLocal, CUserCmd* cmd, CBaseCombatWeapon* ActiveWeapon) noexcept
 {
-	static auto SwingOrStab = reinterpret_cast<bool(__thiscall*)(void*, bool)>(ClientModule + 2174544);
+	static auto SwingOrStab = reinterpret_cast<bool(__thiscall*)(void*, bool)>(Tools::FindPattern("client.dll","80 7B 08 00 B8 ? ? ? ? BE ? ? ? ?") - 0x3B);
 
 	if (Menu::Get.Misc.KnifeBot.KB_Usage || IsVirtualKeyPressed(Menu::Get.Keys.KnifeBot))
 	{
