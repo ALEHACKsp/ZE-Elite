@@ -20,7 +20,7 @@ cstrike folder https://www.unknowncheats.me/forum/downloads.php?do=file&id=33716
 
 4- Convert then move the .wav into "cstrike/sound/ZE-Elite"
 
-You can find some cool sounds from:
+You can get some cool sounds from:
 
 1- https://www.youtube.com/watch?v=m2QA...Lv7CLY&index=2
 
