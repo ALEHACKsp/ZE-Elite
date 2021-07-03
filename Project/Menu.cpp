@@ -2397,8 +2397,6 @@ void Menu::Miscellaneous() noexcept
 				Engine->ClientCmd_Unrestricted("voice_loopback 1");
 
 				SoundInfo.EndTime = Globals->curtime + SoundInfo.SoundDuration;
-
-				ConMsg("%i %i\n",*(int*)(EngineModule + 0x455768),Voice_RecordStart(NULL, NULL, std::string(Dirctory + SoundInfo.GetName() + ".wav").c_str()));
 			}
 
 			Pop();
