@@ -13,9 +13,9 @@ void* Interfaces::GetInterface(const char* ModuleName, const char* InterfaceName
 
 void* FindHudElement(const char* HudName)
 {
-	static auto FindHudElementFn = reinterpret_cast<void* (__thiscall*)(void*, const char*)>(ClientModule + 0x120B90);
+	static auto FindHudElementFn = reinterpret_cast<void* (__thiscall*)(void*, const char*)>(CallableFromRelative(Tools::FindPattern("client.dll", "B9 ? ? ? ? D9 5D F8") + 0x8));
 
-	return FindHudElementFn(Hud, HudName); return 0;
+	return FindHudElementFn(Hud, HudName);
 }
 
 
@@ -77,7 +77,7 @@ void Interfaces::Initialize()
 
 	ClientMode = **(ClientModeShared***)(Tools::FindPattern("client.dll", "8B 0D ? ? ? ? 8B 01 5D FF 60 28 CC") + 2);
 
-	Hud = reinterpret_cast<CHud*>(ClientModule + 0x4F04D0); assert(Hud);
+	Hud = *reinterpret_cast<CHud**>(Tools::FindPattern("client.dll","B9 ? ? ? ? D9 5D F8") + 0x1); assert(Hud);
 
 	HudScope = (CHudScope*)FindHudElement("CHudScope"); assert(HudScope);
 
