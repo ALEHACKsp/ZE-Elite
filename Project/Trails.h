@@ -10,7 +10,7 @@ void ExpensiveTrail(CSpriteTrail*& SpriteEnt, CBaseEntity* pParent) {
 
     if (SpriteEnt == 0)
     {
-        static auto CreateEntityByName = reinterpret_cast<CSpriteTrail * (*)(const char* className)>(Tools::FindPattern("client.dll", "55 8B EC E8 18 4D 04 00"));
+        static auto CreateEntityByName = reinterpret_cast<CSpriteTrail * (*)(const char* className)>(Tools::FindPattern("client.dll", "8B EC E8 ? ? ? ? FF 75 08 8B C8") - 1);
 
         SpriteEnt = CreateEntityByName("env_spritetrail");
 
