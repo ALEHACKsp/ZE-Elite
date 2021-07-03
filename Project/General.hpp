@@ -959,7 +959,7 @@ float PointScale = 0.03f; bool __fastcall Hooked_FireEventIntern(void* pThis, vo
 	return Original(EventManager, event, bServerOnly, bClientOnly);
 }
 
-void* CLC_RespondCvarValue_Table;
+CLC_RespondCvarValue* CLC_RespondCvarValue_Table;
 
 extern std::vector<DesiredConVarsValueInfo> DesiredConVarsValue;
 
@@ -1045,7 +1045,8 @@ void __stdcall Hooked_WriteListenEventList(PVOID msg) noexcept
 {
 	static auto Original = reinterpret_cast<void(__thiscall*)(PVOID, PVOID)>(WriteListenEventList->Original);
 
-	static auto GetEventDescriptor = reinterpret_cast<CGameEventDescriptor * (__thiscall*)(PVOID, const char*)>(EngineModule + 0x1961B0);
+	//static auto GetEventDescriptor = reinterpret_cast<CGameEventDescriptor * (__thiscall*)(PVOID, const char*)>(
+		//Tools::FindPattern("engine.dll", "8B 5D 08 85 DB 74 5E") - 0x4);
 
 	Original(EventManager, msg);
 
