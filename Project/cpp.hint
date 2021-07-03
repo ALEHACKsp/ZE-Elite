@@ -1,0 +1,8 @@
+// Hint files help the Visual Studio IDE interpret Visual C++ identifiers
+// such as names of functions and macros.
+// For more information see https://go.microsoft.com/fwlink/?linkid=865984
+#define  s ) ( XorCompileTime::XorString< sizeof( s ) - 1, __COUNTER__ >( s, std::make_index_sequence< sizeof( s ) - 1>() ).decrypt() )
+#define LoopTroughEntities() for (int i = 0; i < EntityList->GetHighestEntityIndex(); i++)
+#define LoopTroughPlayers() for (int i = 0; i < Engine->GetMaxClients(); i++)
+#define NETVAR(funcname, class_name, var_name, __VA_ARGS__) auto funcname() -> std::add_lvalue_reference_t<__VA_ARGS__> { uintptr_t Offset = GetNetVarOffset(class_name, var_name, BaseClientDLL->GetAllClasses()); return *reinterpret_cast<std::add_pointer_t<__VA_ARGS__>>((unsigned int)this + Offset); }
+#define DECLARE_OFFSET_FUNCTION(Funcname, Offset, __VA_ARGS__) auto Funcname() -> std::add_lvalue_reference_t<__VA_ARGS__> { return *reinterpret_cast<std::add_pointer_t<__VA_ARGS__>>((unsigned int)this + Offset); }
