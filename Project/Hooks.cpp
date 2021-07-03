@@ -1,4 +1,4 @@
-﻿#include <Windows.h>
+#include <Windows.h>
 #include "Config.h"
 #include <memory>
 #include <Psapi.h>
@@ -69,63 +69,61 @@ void Initialize_Loactions() noexcept {
 
 	m_iHealthProxy = new NetVarHookInfo("DT_BasePlayer", "m_iHealth", m_iHealthHook); assert(m_iHealthProxy->Original_Fn);
 
-	unsigned long EngineModuleHandle = EngineModule; unsigned long ClientModuleHandle = ClientModule;
+	DirectXDevice = **(void***)(Tools::FindPattern("shaderapidx9.dll", "8B 0D ? ? ? ? F7 DF") + 2);
 
-	CLC_ListenEvents_Table = (CLC_ListenEvents*)(EngineModuleHandle + 0x2F0D74);
+	Create_Console_Variable_Location = (void*)(Tools::FindPattern("engine.dll", "55 8B EC D9 EE 56 FF 75 18"));
 
-	CLC_RespondCvarValue_Table = (void*)(EngineModuleHandle + 0x2F0E00);
-
-	FireEventIntern = new DetourHookInfo(EngineModuleHandle + 0x195E90, Hooked_FireEventIntern, 0);
-
-	DrawSpriteModel = new DetourHookInfo(ClientModuleHandle + 0xC9EE0, Hooked_DrawSpriteModel, 2);
-
-	CheckCRCs = new DetourHookInfo(EngineModuleHandle + 0xBA6A0, Hooked_CheckCRCs, 0);
-
-	ReadWavFile = new DetourHookInfo(EngineModuleHandle + 0x936D0, Hooked_ReadWavFile, 4);
-
-	CheckWhitelist = new DetourHookInfo(EngineModuleHandle + 0xBA840, Hooked_CheckWhitelist, 4);
-
-	ConsistencyCheck = new DetourHookInfo(EngineModuleHandle + 0xCFA90, Hooked_ConsistencyCheck, 3);
-
-	C_BaseAnimating_DrawModel = new DetourHookInfo(ClientModuleHandle + 0x81D30, Hooked_C_BaseAnimating_DrawModel, 0);
-
-	ProcessMuzzleFlashEvent = new DetourHookInfo(ClientModuleHandle + 0x1D1E20, Hooked_ProcessMuzzleFlashEvent, 0);
-
-	CSpriteTrail_GetRenderOrigin = new DetourHookInfo(ClientModuleHandle + 0x1948F0, Hooked_CSpriteTrail_GetRenderOrigin, 2);
-
-	OnScreenSizeChanged = new DetourHookInfo(Tools::FindPattern("vguimatsurface.dll", "50 64 89 25 ? ? ? ? 83 EC 10 56") - 0x10, Hooked_OnScreenSizeChanged, 4);
-
-	ProcessFixAngle = new DetourHookInfo(EngineModuleHandle + 0x1EEEF0, Hooked_ProcessFixAngle, 0);
-
-	SetViewModel = new DetourHookInfo(ClientModuleHandle + 0x64000, Hooked_SetViewModel, 4);
-
-	SimulateEntities = new DetourHookInfo(ClientModuleHandle + 0xD5A60, Hooked_SimulateEntities, 0);
-
-	GetCvarValue = new DetourHookInfo(EngineModuleHandle + 0x9F750, Hooked_GetCvarValue, 3);
-
-	GetPMaterial = new DetourHookInfo(ClientModuleHandle + 0x163CD0, Hooked_GetPMaterial, 0);
-
-	ClientModeShared_FireGameEvent = new DetourHookInfo(ClientModuleHandle + 0x1D4D40, Hooked_ClientModeShared_FireGameEvent, 3);
-
-	CalcViewModelView = new DetourHookInfo(ClientModuleHandle + 0x6B840, Hooked_CalcViewModelView, 0);
+	CLC_ListenEvents_Table = *(CLC_ListenEvents**)(Tools::FindPattern("engine.dll", "C7 01 ? ? ? ? 85 C0") + 0x2);
 
 	Warning = new DetourHookInfo(uintptr_t(GetProcAddress(GetModuleHandle("tier0.dll"), "Warning")), Hooked_Warning, 2);
 
-	ProcessStringCmd = new DetourHookInfo(EngineModuleHandle + 0x9FEE0, Hooked_ProcessStringCmd, 4);
+	DrawModel = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 83 EC 30 53 33 D2"), Hooked_DrawModel, 0);
 
-	CL_QueueDownload = new DetourHookInfo(EngineModuleHandle + 0x1840D0, Hooked_CL_QueueDownload, 7);
+	CLC_RespondCvarValue_Table = *(CLC_RespondCvarValue**)(Tools::FindPattern("engine.dll", "8B 01 52 8B 40 34") - 0x1E);
 
-	DrawModel = new DetourHookInfo(ClientModuleHandle + 0x162A60, Hooked_DrawModel, 0);
+	SetViewModel = new DetourHookInfo(Tools::FindPattern("client.dll", "C2 04 00 56 57 8B F9") + 0x3, Hooked_SetViewModel, 4);
 
-	C_ParticleSmokeGrenade = new DetourHookInfo(ClientModuleHandle + 0x233050, Hooked_SmokeGrenade_Start, 3);
+	ReadWavFile = new DetourHookInfo(Tools::FindPattern("engine.dll", "51 56 68 ? ? ? ? FF 75 08") - 0x3, Hooked_ReadWavFile, 4);
 
-	CSteam3Client_InitiateConnection = new DetourHookInfo(EngineModuleHandle + 0xC2E00, Hooked_CSteam3Client_InitiateConnection, 0);
+	C_ParticleSmokeGrenade = new DetourHookInfo(Tools::FindPattern("client.dll", "EB D7 5D") + 0x6, Hooked_SmokeGrenade_Start, 3);
 
-	WriteListenEventList = new DetourHookInfo(EngineModuleHandle + 0x197560, Hooked_WriteListenEventList, 0);
+	CheckWhitelist = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 83 3D ? ? ? ? ? 7E 5E"), Hooked_CheckWhitelist, 4);
 
-	DirectXDevice = **(void***)(Tools::FindPattern("shaderapidx9.dll", "8B 0D ? ? ? ? F7 DF") + 2); assert(DirectXDevice);
+	CalcViewModelView = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 83 EC 24 8B 55 10"), Hooked_CalcViewModelView, 0);
 
-	Create_Console_Variable_Location = (void*)(EngineModuleHandle + 0x246610);
+	CL_QueueDownload = new DetourHookInfo(Tools::FindPattern("engine.dll", "83 C4 04 84 C0 0F 95 C0") + 0xA, Hooked_CL_QueueDownload, 7);
+
+	FireEventIntern = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 83 EC 34 53 8B 5D 08 57"), Hooked_FireEventIntern, 0);
+
+	ProcessStringCmd = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 80 B9 ? ? ? ? ? 74 2F"), Hooked_ProcessStringCmd, 4);
+
+	GetPMaterial = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("client.dll", "E8 ? ? ? ? 8D 5F F8")), Hooked_GetPMaterial, 0);
+
+	SimulateEntities = new DetourHookInfo(Tools::FindPattern("client.dll", "83 EC 10 8B 0D ? ? ? ? 53 56") - 0x3, Hooked_SimulateEntities, 0);
+
+	ConsistencyCheck = new DetourHookInfo(Tools::FindPattern("engine.dll", "81 EC ? ? ? ? 53 8B D9 89 5D F4") - 0x3, Hooked_ConsistencyCheck, 3);
+
+	GetCvarValue = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 81 EC ? ? ? ? 56 57 8B 7D 08 89 4D FC"), Hooked_GetCvarValue, 3);
+
+	CheckCRCs = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("engine.dll", "E8 ? ? ? ? 83 C4 04 84 C0 75 21")), Hooked_CheckCRCs, 0);
+
+	ProcessFixAngle = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 8B 45 08 83 EC 08 F3 0F 10 15 ? ? ? ?"), Hooked_ProcessFixAngle, 0);
+
+	ProcessMuzzleFlashEvent = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 83 EC 68 53 56 57 8B F9"), Hooked_ProcessMuzzleFlashEvent, 0);
+
+	DrawSpriteModel = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("client.dll", "E8 ? ? ? ? 83 C4 38 83 FE 03")), Hooked_DrawSpriteModel, 2);
+
+	OnScreenSizeChanged = new DetourHookInfo(Tools::FindPattern("vguimatsurface.dll", "50 64 89 25 ? ? ? ? 83 EC 10 56") - 0x10, Hooked_OnScreenSizeChanged, 4);
+
+	CSteam3Client_InitiateConnection = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 83 EC 10 8B 45 1C"), Hooked_CSteam3Client_InitiateConnection, 0);
+
+	WriteListenEventList = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("engine.dll", "E8 ? ? ? ? 8B 4E 10 8D 55 A4")), Hooked_WriteListenEventList, 0);
+
+	C_BaseAnimating_DrawModel = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("client.dll", "E8 ? ? ? ? 8D 5E FC")), Hooked_C_BaseAnimating_DrawModel, 0);
+
+	ClientModeShared_FireGameEvent = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 81 EC ? ? ? ? 56 57 89 4D FC"), Hooked_ClientModeShared_FireGameEvent, 3);
+
+	CSpriteTrail_GetRenderOrigin = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 57 FF 75 08 8B F9 E8 ? ? ? ? 83 7D 08 00 75 1B") - 0xD0, Hooked_CSpriteTrail_GetRenderOrigin, 2);
 
 	Create_Console_Variable(fog_override, "fog_override", "0", FCVAR_CHEAT | FCVAR_CLIENTDLL, "", nullptr); assert(Cvar->FindVar("fog_override"));
 
