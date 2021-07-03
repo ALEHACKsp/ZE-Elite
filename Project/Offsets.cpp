@@ -71,7 +71,7 @@ void Offsets(ClientClass* ClientClass)
 	m_iTeamNum = GetNetVarOffset("DT_BaseEntity", "m_iTeamNum", ClientClass); assert(m_iTeamNum);
 
 	m_vecOrigin = GetNetVarOffset("DT_BaseEntity", "m_vecOrigin", ClientClass); assert(m_vecOrigin);
-	
+
 	m_nModelIndex = GetNetVarOffset("DT_BaseEntity", "m_nModelIndex", ClientClass); assert(m_nModelIndex);
 
 	m_flSimulationTime = GetNetVarOffset("DT_BaseEntity", "m_flSimulationTime", ClientClass); assert(m_flSimulationTime);
@@ -112,10 +112,10 @@ void Offsets(ClientClass* ClientClass)
 
 	Original_SetParent = reinterpret_cast<void(__thiscall*)(void*, void* pParent, int attachment)>(CallableFromRelative(Tools::FindPattern("client.dll", "E8 ? ? ? ? 83 66 7C FE")));
 
-	Original_HierarchySetParent = reinterpret_cast<void(__thiscall*)(void*, void* pNewParent)>(CallableFromRelative(Tools::FindPattern("client.dll", "E8 ? ? ? ? 5E C3 33 C0 8B CA")));
+	Original_HierarchySetParent = reinterpret_cast<void(__thiscall*)(void*, void* pNewParent)>(Tools::FindPattern("client.dll", "83 C8 FF 8B 8E ? ? ? ? 3B C1") - 0x19);
 
 	GetOwner = reinterpret_cast<CBaseEntity * (__thiscall*)(void*)>(
-		Tools::FindPattern("client.dll", "56 83 FA FF 74 34") - 6); assert(GetOwner);
+		CallableFromRelative(Tools::FindPattern("client.dll", "E8 ? ? ? ? 85 C0 75 EB"))); assert(GetOwner);
 
 	GetEffectName = reinterpret_cast<const char* (__thiscall*)(void*)>(
 		Tools::FindPattern("client.dll", "8B 49 40 85 C9 74 0B")); assert(GetEffectName);
