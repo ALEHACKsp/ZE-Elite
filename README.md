@@ -18,7 +18,7 @@ cstrike folder https://www.unknowncheats.me/forum/downloads.php?do=file&id=33716
 
 3- Change settings to [pcm_s16le][22050 hz][mono]
 
-4- Convert then move the .wav into "cstrike/sound/ZE-Elite"
+4- Convert them, then move the .wav into "cstrike/sound/ZE-Elite"
 
 You can get some cool sounds from:
 
