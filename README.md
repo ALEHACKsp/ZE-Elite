@@ -22,9 +22,9 @@ cstrike folder https://www.unknowncheats.me/forum/downloads.php?do=file&id=33716
 
 You can get some cool sounds from:
 
-1- https://www.youtube.com/watch?v=m2QA...Lv7CLY&index=2
+A- https://www.youtube.com/watch?v=m2QA...Lv7CLY&index=2
 
-2- https://www.myinstants.com/
+B- https://www.myinstants.com/
 
 # Showcase:
 
