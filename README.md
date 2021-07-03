@@ -14,7 +14,7 @@ cstrike folder https://www.unknowncheats.me/forum/downloads.php?do=file&id=33716
 # How To Add More Sounds To Voice Chat
 1- Get .mp3 or .wav file
 
-2- Go to mp3 To wav
+2- Go to https://www.freeconvert.com/mp3-to-wav
 
 3- Change settings to [pcm_s16le][22050 hz][mono]
 
