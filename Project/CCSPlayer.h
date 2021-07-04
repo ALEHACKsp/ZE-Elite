@@ -24,82 +24,38 @@ public:
 	DECLARE_OFFSET_FUNCTION(GetRenderMode, m_nRenderMode, std::uint8_t);
 	DECLARE_OFFSET_FUNCTION(GetShotsFired, m_iShotsFired, uintptr_t);
 	DECLARE_OFFSET_FUNCTION(GetPunchAngle, m_vecPunchAngle, Vector);
-	DECLARE_OFFSET_FUNCTION(IsDucked, m_bDucked, bool);
-	DECLARE_OFFSET_FUNCTION(IsDucking, m_bDucking, bool);
-	DECLARE_OFFSET_FUNCTION(GetDucktime, m_flDucktime, float);
-	DECLARE_OFFSET_FUNCTION(GetFallVelocity, m_flFallVelocity, float);
-	//DECLARE_OFFSET_FUNCTION(GetMaxspeed, 0x1078, float);
 	DECLARE_OFFSET_FUNCTION(GetWaterLevel, m_nWaterLevel, char);
-	//DECLARE_OFFSET_FUNCTION(GetImpulse, 0x10C4, uintptr_t);
 	DECLARE_OFFSET_FUNCTION(GetCreationTick, m_nCreationTick, std::int32_t);
 	DECLARE_OFFSET_FUNCTION(GetTickBase, m_nTickBase, uintptr_t);
-	DECLARE_OFFSET_FUNCTION(GetGroundEntity, m_hGroundEntity, int);
 	DECLARE_OFFSET_FUNCTION(GetViewModel, m_hViewModel, void*);
 	DECLARE_OFFSET_FUNCTION(GetMoveType, m_MoveType, char);
 	DECLARE_OFFSET_FUNCTION(GetVelocity, m_vecVelocity, Vector);
 	DECLARE_OFFSET_FUNCTION(GetHitboxSet, m_nHitboxSet, int);
 	DECLARE_OFFSET_FUNCTION(GetModelIndex, m_nModelIndex, int);
-	DECLARE_OFFSET_FUNCTION(GetCollisionGroup, m_CollisionGroup, int);
-	//DECLARE_OFFSET_FUNCTION(GetFriction, 0x25C, float);
 	DECLARE_OFFSET_FUNCTION(GetTeamNum, m_iTeamNum, uintptr_t);
-	DECLARE_OFFSET_FUNCTION(GetFov, m_iFOV, int);
-	DECLARE_OFFSET_FUNCTION(GetDefaultFOV, m_iDefaultFOV, int);
-	//DECLARE_OFFSET_FUNCTION(GetOwnerEntity, 0x4D8, int);
 	DECLARE_OFFSET_FUNCTION(GetNetworkMoveParent, 0x190, int);
-	//DECLARE_OFFSET_FUNCTION(GetNetworkOrigin, 0x338, Vector);
-	//DECLARE_OFFSET_FUNCTION(GetAngNetworkAngles, 0x344, Vector);
-	//DECLARE_OFFSET_FUNCTION(GetAngRotation, 0x2CC, Vector);
-	//DECLARE_OFFSET_FUNCTION(GetEFlags, 0x174, uintptr_t);
 	DECLARE_OFFSET_FUNCTION(GetAccount, m_iAccount, int);
-	DECLARE_OFFSET_FUNCTION(IsInBombZone, m_bInBombZone, int);
 	DECLARE_OFFSET_FUNCTION(GetArmorValue, m_ArmorValue, int);
 	DECLARE_OFFSET_FUNCTION(HasHelmet, m_bHasHelmet, bool);
-	DECLARE_OFFSET_FUNCTION(IsDefusing, m_bIsDefusing, int);
-	//DECLARE_OFFSET_FUNCTION(GetFlashDuration, 0x1454, float);
 	DECLARE_OFFSET_FUNCTION(GetFlashMaxAlpha, m_flFlashMaxAlpha, float);
-
-	DECLARE_OFFSET_FUNCTION(GetSimulationTime, m_flSimulationTime, float);
-
 	DECLARE_OFFSET_FUNCTION(GetVecViewOffset, m_vecViewOffset, Vector);
-
 	DECLARE_OFFSET_FUNCTION(GetNextAttack, m_flNextAttack, float);
-
-	DECLARE_OFFSET_FUNCTION(GetLifeState, m_lifeState, uint8_t);
-
 	DECLARE_OFFSET_FUNCTION(GetVecOrigin, m_vecOrigin, Vector);
-
 	DECLARE_OFFSET_FUNCTION(GetEyeAngles, m_angEyeAngles, Vector);
-
 	DECLARE_OFFSET_FUNCTION(GetRenderColor, m_clrRender, Color);
-
 	DECLARE_OFFSET_FUNCTION(GetOwner, m_hOwner, uint8_t);
-
 	DECLARE_OFFSET_FUNCTION(GetMins, m_vecMins, Vector&);
-
 	DECLARE_OFFSET_FUNCTION(GetMaxs, m_vecMaxs, Vector&);
-
 	DECLARE_OFFSET_FUNCTION(GetEffects, m_ffEffects, uint32_t);
-
 	DECLARE_OFFSET_FUNCTION(GetWeapon, m_hWeapon, void*);
-
 	DECLARE_OFFSET_FUNCTION(IsNightVisionOn, m_bNightVisionOn, uint32_t);
-
 	DECLARE_OFFSET_FUNCTION(GetNightVisionAlpha, m_flNightVisionAlpha, float);
-
-	int GetFOV()
-	{
-		int Fov = GetFov();
-
-		auto FOV = Fov ? Fov : GetDefaultFOV();
-
-		return FOV;
-	}
 
 	const char* GetName()
 	{
 		static player_info_t Info;
 
-		static const char* Unknown{ nullptr };
+		static const char* Unknown{ "" };
 
 		if (Engine->GetPlayerInfo(GetIndex(), &Info))
 		{
@@ -481,25 +437,24 @@ public:
 	DECLARE_OFFSET_FUNCTION(GetPrimaryAmmoCount, 0x8A4, uintptr_t);
 	DECLARE_OFFSET_FUNCTION(GetSecondaryAmmoCount, 0x8A8, uintptr_t);
 	DECLARE_OFFSET_FUNCTION(ShouldFlipViewModel, m_bFlipViewModel, bool);
-
 	DECLARE_OFFSET_FUNCTION(GetWeaponMode, m_weaponMode, int32_t);
 	DECLARE_OFFSET_FUNCTION(GetAccuracyPenalty, m_fAccuracyPenalty, float);
 
-	bool IsKnife()
+	constexpr bool IsC4()
 	{
-		return GetWeaponID() == WEAPON_KNIFE;
+		return (GetWeaponID() == WEAPON_C4);
 	}
 
-	bool IsGrenade()
+	constexpr bool IsKnife()
+	{
+		return (GetWeaponID() == WEAPON_KNIFE);
+	}
+
+	constexpr bool IsGrenade()
 	{
 		int ID = GetWeaponID();
 
-		return ID == WEAPON_HEGRENADE || ID == WEAPON_SMOKEGRENADE || ID == WEAPON_FLASHBANG;
-	}
-
-	bool IsC4()
-	{
-		return GetWeaponID() == WEAPON_C4;
+		return (ID == WEAPON_HEGRENADE || ID == WEAPON_SMOKEGRENADE || ID == WEAPON_FLASHBANG);
 	}
 
 	bool IsFullAuto()
@@ -699,10 +654,3 @@ public:
 	int32_t m_iDefaultPrice; //0x0908
 	int32_t m_iPreviousPrice; //0x090C
 }; //Size: 0x0910
-
-class CCSRagdoll : public CBaseEntity 
-{
-public:
-	DECLARE_OFFSET_FUNCTION(GetVecForce, m_vecForce, Vector);
-	DECLARE_OFFSET_FUNCTION(GetVecRagdollVelocity, m_vecRagdollVelocity, Vector);
-};
