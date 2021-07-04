@@ -801,10 +801,10 @@ char Backup_Of_Scope_Len_Bytes[4];
 void UpdateScopeLens()
 {
 	static auto CHudScope_Init = reinterpret_cast<void(__thiscall*)(void*)>(
-		Tools::FindPattern("client.dll", "56 8B F1 8B 0D ? ? ? ? 6A 00 8B 01")); assert(CHudScope_Init);
+		Tools::FindPattern("client.dll", "56 8B F1 8B 0D ? ? ? ? 6A 00 8B 01"));
 
 	static auto Scope_Len_path = reinterpret_cast<BYTE*>(
-		Tools::FindPattern("client.dll", "89 46 3C 8B 0D ? ? ? ?") + 0xE); assert(Scope_Len_path);
+		Tools::FindPattern("client.dll", "89 46 3C 8B 0D ? ? ? ?") + 0xE);
 
 	[[maybe_unused]] static auto Once = []() -> bool
 	{
