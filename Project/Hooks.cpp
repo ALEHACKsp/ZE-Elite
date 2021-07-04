@@ -143,7 +143,7 @@ void Initialize_Loactions() noexcept {
 
 void Hooks::Initialize(HMODULE MyDLL) noexcept
 {
-	Precache_materials_and_models(MyDLL);
+	Precache_Custom_Stuff(MyDLL);
 
 	Config::LoadConfig(); OnLevelInit(); Initialize_Loactions();
 
