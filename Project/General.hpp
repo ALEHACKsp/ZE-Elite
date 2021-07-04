@@ -974,8 +974,6 @@ bool __fastcall Hooked_GetCvarValue(void* ECX, void* EDX, SVC_GetCvarValue* msg)
 	// Prepare the response.
 	CLC_RespondCvarValue returnMsg; *(void**)&returnMsg = CLC_RespondCvarValue_Table;
 
-	const ConVar* pVar = Cvar->FindVar(msg->m_szCvarName);
-
 	returnMsg.m_iCookie = msg->m_iCookie;
 	returnMsg.m_szCvarName = msg->m_szCvarName;
 	returnMsg.m_szCvarValue = "";
@@ -984,6 +982,8 @@ bool __fastcall Hooked_GetCvarValue(void* ECX, void* EDX, SVC_GetCvarValue* msg)
 	char tempValue[256];
 
 	// Does any ConCommand exist with this name?
+
+	const auto pVar = Cvar->FindVar(msg->m_szCvarName);
 
 	if (pVar)
 	{
@@ -1025,6 +1025,10 @@ bool __fastcall Hooked_GetCvarValue(void* ECX, void* EDX, SVC_GetCvarValue* msg)
 			returnMsg.m_eStatusCode = eQueryCvarValueStatus_CvarNotFound;
 	}
 
+#ifdef SafetyMode
+	bool HasDesiredValue = false;
+#endif
+
 	for (int i = 0; i < DesiredConVarsValue.size(); i++)
 	{
 		if (strcmp(returnMsg.m_szCvarName, DesiredConVarsValue.at(i).GetName()) == 0)
@@ -1032,8 +1036,18 @@ bool __fastcall Hooked_GetCvarValue(void* ECX, void* EDX, SVC_GetCvarValue* msg)
 			returnMsg.m_szCvarValue = DesiredConVarsValue.at(i).GetValue();
 
 			returnMsg.m_eStatusCode = (EQueryCvarValueStatus)DesiredConVarsValue.at(i).GetStatus(); break;
+#ifdef SafetyMode
+			HasDesiredValue = true;
+#endif
 		}
 	}
+
+#ifdef SafetyMode
+	if (!HasDesiredValue)
+	{
+		returnMsg.m_szCvarValue = pVar->GetDefault();
+	}
+#endif
 
 	// Send back.
 	ClientState->m_NetChannel->SendNetMsg((void*&)returnMsg);
