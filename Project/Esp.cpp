@@ -588,28 +588,6 @@ void Esp::Box(DynamicBoundingBox bbox) noexcept
 			Surface->DrawLine(bbox.x1 - 1.0f, bbox.y1, bbox.x1 - 1.0f, IM_FLOOR(bbox.y1 * 0.75f + bbox.y0 * 0.25f));
 
 			break;
-		case 2:
-			for (int i = 0; i < 8; i++) {
-				for (int j = 1; j <= 4; j <<= 1) {
-					if (!(i & j))
-						Surface->DrawLine(bbox.vertices[i].x, bbox.vertices[i].y, bbox.vertices[i + j].x, bbox.vertices[i + j].y);
-				}
-			}
-			break;
-		case 3:
-			for (int i = 0; i < 8; i++)
-			{
-				for (int j = 1; j <= 4; j <<= 1)
-				{
-					if (!(i & j))
-					{
-						Surface->DrawLine(bbox.vertices[i].x, bbox.vertices[i].y, bbox.vertices[i].x + (bbox.vertices[i + j].x - bbox.vertices[i].x) * 0.25f, bbox.vertices[i].y + (bbox.vertices[i + j].y - bbox.vertices[i].y) * 0.25f);
-
-						Surface->DrawLine(bbox.vertices[i].x + (bbox.vertices[i + j].x - bbox.vertices[i].x) * 0.75f, bbox.vertices[i].y + (bbox.vertices[i + j].y - bbox.vertices[i].y) * 0.75f, bbox.vertices[i + j].x, bbox.vertices[i + j].y);
-					}
-				}
-			}
-			break;
 		}
 	}
 }
