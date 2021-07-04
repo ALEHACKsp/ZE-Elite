@@ -1043,7 +1043,7 @@ bool __fastcall Hooked_GetCvarValue(void* ECX, void* EDX, SVC_GetCvarValue* msg)
 	}
 
 #ifdef SafetyMode
-	if (!HasDesiredValue)
+	if (!HasDesiredValue && pVar)
 	{
 		returnMsg.m_szCvarValue = pVar->GetDefault();
 	}
