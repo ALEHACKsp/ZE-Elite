@@ -440,17 +440,17 @@ public:
 	DECLARE_OFFSET_FUNCTION(GetWeaponMode, m_weaponMode, int32_t);
 	DECLARE_OFFSET_FUNCTION(GetAccuracyPenalty, m_fAccuracyPenalty, float);
 
-	constexpr bool IsC4()
+	bool IsC4()
 	{
-		return (GetWeaponID() == WEAPON_C4);
+		return GetWeaponID() == WEAPON_C4;
 	}
 
-	constexpr bool IsKnife()
+	bool IsKnife()
 	{
-		return (GetWeaponID() == WEAPON_KNIFE);
+		return GetWeaponID() == WEAPON_KNIFE;
 	}
 
-	constexpr bool IsGrenade()
+	bool IsGrenade()
 	{
 		int ID = GetWeaponID();
 
