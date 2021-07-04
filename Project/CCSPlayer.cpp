@@ -25,13 +25,16 @@ const Vector CBaseEntity::GetHitboxPosition(int iHitbox)
 	if (!SetupBones(matrix, 128, 0x100, Globals->curtime))
 		return Vector();
 
-	int HitboxSetIndex = *(int*)((DWORD)hdr + 0xB0);
-	if (!HitboxSetIndex)
+	auto pStudioHdr = ModelInfo->GetStudiomodel(model);
+	if (!pStudioHdr)
+		return Vector();;
+
+
+	auto pHitboxSet = pStudioHdr->GetHitboxSet(GetHitboxSet());
+	if (!pHitboxSet)
 		return Vector();
 
-	mstudiohitboxset_t* pSet = (mstudiohitboxset_t*)(((PBYTE)hdr) + HitboxSetIndex);
-
-	mstudiobbox_t* box = pSet->GetHitbox(iHitbox);
+	mstudiobbox_t* box = pHitboxSet->GetHitbox(iHitbox);
 	if (!box)
 		return Vector();
 
