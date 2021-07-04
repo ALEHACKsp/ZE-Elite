@@ -14,6 +14,18 @@ public:
 	float			m_flRadius;
 };
 
+struct te_tf_particle_effects_colors_t
+{
+	Vector m_vecColor1;
+	Vector m_vecColor2;
+};
+
+struct te_tf_particle_effects_control_point_t
+{
+	int m_eParticleAttachment;
+	Vector m_vecOffset;
+};
+
 class CEffectData
 {
 public:
@@ -28,6 +40,20 @@ public:
 	float	m_flRadius;
 	int		m_nAttachmentIndex;
 	short	m_nSurfaceProp;
+
+	// Some TF2 specific things
+	int		m_nMaterial;
+	int		m_nDamageType;
+	int		m_nHitBox;
+
+	unsigned char	m_nColor;
+
+	// Color customizability
+	bool							m_bCustomColors;
+	te_tf_particle_effects_colors_t	m_CustomColors;
+
+	bool									m_bControlPoint1;
+	te_tf_particle_effects_control_point_t	m_ControlPoint1;
 
 	// Don't mess with stuff below here. DispatchEffect handles all of this.
 public:
@@ -46,6 +72,20 @@ public:
 
 		m_flMagnitude = 0.0f;
 		m_flRadius = 0.0f;
+
+		m_nMaterial = 0;
+		m_nDamageType = 0;
+		m_nHitBox = 0;
+
+		m_nColor = 0;
+
+		m_bCustomColors = false;
+		m_CustomColors.m_vecColor1.Init(1.f, 1.f, 1.f);
+		m_CustomColors.m_vecColor2.Init(1.f, 1.f, 1.f);
+
+		m_bControlPoint1 = false;
+		m_ControlPoint1.m_eParticleAttachment = 0;
+		m_ControlPoint1.m_vecOffset.Init();
 	}
 
 	int GetEffectNameIndex() { return m_iEffectName; }
