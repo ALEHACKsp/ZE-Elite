@@ -1,4 +1,5 @@
 #include "FindPattern.h"
+#include "SDK.h"
 
 
 
@@ -6,7 +7,9 @@ uintptr_t Tools::FindPattern(const char* szModule, const char* szSignature)
 {
 	MODULEINFO modInfo;
 
-	GetModuleInformation(GetCurrentProcess(), GetModuleHandle(szModule), &modInfo, sizeof(MODULEINFO));
+	static auto CurrentPorcess = GetCurrentProcess();
+
+	GetModuleInformation(CurrentPorcess, GetModuleHandle(szModule), &modInfo, sizeof(MODULEINFO));
 
 	uintptr_t startAddress = reinterpret_cast<uintptr_t>(modInfo.lpBaseOfDll);
 
@@ -38,6 +41,12 @@ uintptr_t Tools::FindPattern(const char* szModule, const char* szSignature)
 		}
 	}
 
+	const wchar_t* GetWC(const char* c) noexcept;
+
+	std::wstring Error = L""; Error.append(L"[").append(GetWC(szModule)).append(L"]").append(L" [").append(GetWC(szSignature)).append(L"] Pointed to nullptr address");
+
+	_wassert(Error.c_str(), NULL, 0);
+        
 	return NULL;
 }
 
