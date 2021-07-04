@@ -7,6 +7,9 @@ std::vector<Entities> EntitiesListener;
 
 auto Last_LocalPlayer_Roll_Position{ 0.f };
 
+#define GAMEMOVEMENT_JUMP_TIME				510.0f
+#define GAMEMOVEMENT_DUCK_TIME				1000.0f
+
 void Update_LocalPlayer_Roll(bool OnGround,const float& MyRoll) noexcept
 {
 	if (OnGround)
@@ -18,10 +21,7 @@ void Update_LocalPlayer_Roll(bool OnGround,const float& MyRoll) noexcept
 	}
 }
 
-#define GAMEMOVEMENT_DUCK_TIME				1000.0f		// ms
-#define GAMEMOVEMENT_JUMP_TIME				510.0f		// ms approx - based on the 21 unit height jump
-
-void SetLaserTicks
+void Set_Action_Or_Release_Tick
 (
 	Vector EntityVelocity,
 	Vector EntityOrigin,
@@ -417,7 +417,7 @@ void AutoLaser::Run(CBaseEntity* pLocal, CUserCmd* cmd, bool& bSendPacket) noexc
 						continue;
 					}
 
-					/*if (!EntityInfo.Action_Tick)*/ SetLaserTicks(
+					/*if (!EntityInfo.Action_Tick)*/ Set_Action_Or_Release_Tick(
 						EntityVelocity,
 						EntityInfo.Origin,
 						LocalOrigin,
@@ -455,7 +455,7 @@ void AutoLaser::Run(CBaseEntity* pLocal, CUserCmd* cmd, bool& bSendPacket) noexc
 
 						if (Jump_Condations || Duck_Condations)
 						{
-							SetLaserTicks(EntityVelocity,
+							Set_Action_Or_Release_Tick(EntityVelocity,
 								EntityOrigin,
 								LocalOrigin,
 								EntityInfo,
