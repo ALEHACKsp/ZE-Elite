@@ -794,11 +794,7 @@ bool FindStringCS(std::string data, std::string toSearch)
 	return strstr(data.data(), toSearch.data());
 }
 
-char NewScopePath[MAX_PATH];
-
-char Backup_Of_Scope_Len_Bytes[4];
-
-void UpdateScopeLens()
+char NewScopePath[MAX_PATH]; char Backup_Of_Scope_Len_Bytes[4]; void UpdateScopeLens()
 {
 	static auto CHudScope_Init = reinterpret_cast<void(__thiscall*)(void*)>(
 		Tools::FindPattern("client.dll", "56 8B F1 8B 0D ? ? ? ? 6A 00 8B 01"));
@@ -806,31 +802,34 @@ void UpdateScopeLens()
 	static auto Scope_Len_path = reinterpret_cast<BYTE*>(
 		Tools::FindPattern("client.dll", "89 46 3C 8B 0D ? ? ? ?") + 0xE);
 
-	[[maybe_unused]] static auto Once = []() -> bool
-	{
-		mmcopy(Backup_Of_Scope_Len_Bytes, Scope_Len_path, 4);
+	if (Scope_Len_path && CHudScope_Init) {
 
-		return true;
-	}();
+		[[maybe_unused]] static auto Once = []() -> bool
+		{
+			mmcopy(Backup_Of_Scope_Len_Bytes, Scope_Len_path, 4);
 
-	if (Menu::Get.Visuals.ScopeLen == 0)
-	{
+			return true;
+		}();
+
+		if (Menu::Get.Visuals.ScopeLen == 0)
+		{
+			mmcopy(Scope_Len_path, Backup_Of_Scope_Len_Bytes, 4);
+		}
+		else
+		{
+			snprintf(NewScopePath, sizeof NewScopePath, "%s", (std::string("overlays/Scopes/") + ScopeOverlays[Menu::Get.Visuals.ScopeLen]).c_str());
+
+			static auto Protection_Backup{ TickCount };
+
+			VirtualProtect(Scope_Len_path, sizeof(void*), PAGE_EXECUTE_READWRITE, &Protection_Backup);
+
+			*(void**)Scope_Len_path = &NewScopePath;
+
+			VirtualProtect(Scope_Len_path, sizeof(void*), Protection_Backup, nullptr);
+		}
+
+		if (HudScope) CHudScope_Init(HudScope);
+
 		mmcopy(Scope_Len_path, Backup_Of_Scope_Len_Bytes, 4);
 	}
-	else
-	{
-		snprintf(NewScopePath, sizeof NewScopePath, "%s", (std::string("overlays/Scopes/") + ScopeOverlays[Menu::Get.Visuals.ScopeLen]).c_str());
-
-		static auto Protection_Backup{ TickCount };
-
-		VirtualProtect(Scope_Len_path, sizeof(void*), PAGE_EXECUTE_READWRITE, &Protection_Backup);
-
-		*(void**)Scope_Len_path = &NewScopePath;
-
-		VirtualProtect(Scope_Len_path, sizeof(void*), Protection_Backup, nullptr);
-	}
-
-	if (HudScope) CHudScope_Init(HudScope);
-
-	mmcopy(Scope_Len_path, Backup_Of_Scope_Len_Bytes, 4);
 }
