@@ -7,7 +7,7 @@
 
 namespace Hooks
 {
-	void Initialize() noexcept;
+	void Initialize(HMODULE MyDLL) noexcept;
 
 	void Uninitialize() noexcept;
 
