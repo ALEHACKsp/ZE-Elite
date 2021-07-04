@@ -1094,30 +1094,4 @@ void __stdcall Hooked_CSteam3Client_InitiateConnection(void* data, int nMaxData,
 	}
 }
 
-/*DetourHookInfo* Impact;
-
-bool Hooked_Impact(Vector& vecOrigin, Vector& vecStart, int iMaterial, int iDamageType, int iHitbox, CBaseEntity* pEntity, trace_t& tr, int nFlags, int maxLODToDecal)
-{
-	static auto Origial = reinterpret_cast<decltype(&Hooked_Impact)>(Impact->Original);
-
-	auto RetV = Origial(vecOrigin, vecStart, iMaterial, iDamageType, iHitbox, pEntity, tr, nFlags, maxLODToDecal);
-
-	if (auto pLocal = GetLocalPlayerBase; pLocal && vecStart == pLocal->GetEyePosition())
-	{
-		constexpr auto& Bullet_Impact{ Menu::Get.Colors.General.BulletImpact };
-
-		if (Bullet_Impact.a()) {
-
-			DebugOverlay->AddBoxOverlay(tr.endpos, Vector(-2, -2, -2), Vector(2, 2, 2), QAngle(0, 0, 0), Bullet_Impact.r(), Bullet_Impact.g(), Bullet_Impact.b(), Bullet_Impact.a(), 4);
-		}
-
-		if (Menu::Get.Visuals.Tracers.TR_Enabled) {
-
-			DrawBeamd(pLocal->GetEyePosition() - Vector(0, 0, PointScale), tr.endpos, Menu::Get.Colors.General.Tracers);
-		}
-	}
-
-	return RetV;
-} Impact = new DetourHookInfo(ClientModule + 0x10C300, Hooked_Impact, 0); assert(Impact->Original);*/
-
 #endif
