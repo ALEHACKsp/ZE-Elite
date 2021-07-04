@@ -1,30 +1,74 @@
-#ifndef Hooks_H
-#define Hooks_H
+#ifndef Assorted_H
+#define Assorted_H
 
-#pragma once
+#include "SDK.h"
+#include <optional>
+#include "Defintions.h"
 
-#include "VMT_Hook.h"
+extern void HitMarkerOnPaint() noexcept;
 
-namespace Hooks
+extern void SetClanTag(const char* tag) noexcept;
+
+extern void Precache_Custom_Stuff(HMODULE DLL) noexcept;
+
+extern bool PrecacheModel(const char* szModelName) noexcept;
+
+extern void DrawBeamd(Vector src, Vector end, Color color) noexcept;
+
+extern bool FindStringCS(std::string data, std::string toSearch) noexcept;
+
+extern void Set_DisConnection_Msg(const char* Message, bool Reset = false) noexcept;
+
+extern std::string ReplaceString(std::string subject, const std::string& search, const std::string& replace) noexcept;
+
+extern void UTIL_TraceLine(const Vector& vecAbsStart, const Vector& vecAbsEnd, unsigned int mask, const CBaseEntity* ignore, int collisionGroup, trace_t* ptr) noexcept;
+
+bool IntersectRayWithOBB(const Vector& vecRayStart, const Vector& vecRayDelta, const matrix3x4& matOBBToWorld, const Vector& vecOBBMins, const Vector& vecOBBMaxs) noexcept;
+
+extern void UTIL_ClipTraceToPlayers
+(
+	const Vector& vecAbsStart,
+	const Vector& vecAbsEnd,
+	unsigned int mask,
+	ITraceFilter* filter,
+	trace_t* tr
+) noexcept;
+
+extern float _flHurtTime;
+
+extern bool Overlay_Triggered;
+
+extern std::vector<std::string> HitSounds;
+
+class CLC_ListenEvents
 {
-	void Initialize(HMODULE MyDLL) noexcept;
+	char pad[16];
+public:
+	char m_EventArray[64];
+};
 
-	void Uninitialize() noexcept;
+extern void* CLC_ListenEvents_Table;
 
-	extern VMTHook* Panel_Table;
-	extern VMTHook* Engine_Table;
-	extern VMTHook* Client_Table;
-	extern VMTHook* Surface_Table;
-	extern VMTHook* ClientMod_Table;
-	extern VMTHook* D3Ddevice_Table;
-	extern VMTHook* RenderView_Table;
-	extern VMTHook* EngineSound_Table;
-	extern VMTHook* NetChannel_Table;
-	extern VMTHook* ModelRender_Table;
-	extern VMTHook* GameMovement_Table;
-	extern VMTHook* BSPTreeQuery_Table;
-	extern VMTHook* MatSystemOther_Table;
-	extern VMTHook* GameEventManager_Table;
+inline __declspec(naked) void __cdecl Invoke_NET_SetConVar(void* pfn, const char* cvar, const char* value) noexcept
+{
+	__asm
+	{
+		push    ebp
+		mov     ebp, esp
+		sub     esp, 2Ch
+		push    esi
+		push    edi
+		mov     edi, cvar
+		mov     esi, value
+		jmp     pfn
+	}
+}
+
+inline void NET_Set_ConVar(const char* cvar, const char* value) noexcept
+{
+	static void* pvSetConVar = (void*)(Tools::FindPattern("engine.dll", "56 57 8D 4D D4"));
+
+	Invoke_NET_SetConVar(pvSetConVar, cvar, value);
 }
 
 #endif
