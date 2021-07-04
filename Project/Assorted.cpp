@@ -15,8 +15,6 @@ std::vector<std::string> HitSounds;
 
 std::vector<SC_ModelInfo>GameModels;
 
-extern std::vector<std::string> TrailMaterials;
-
 void mmcopy
 (
 	void* address,
@@ -109,53 +107,17 @@ void HitMarkerOnPaint()
 	}
 }
 
-class INetworkStringTable
-{
-public:
-
-	virtual                 ~INetworkStringTable(void) {};
-
-	// Table Info
-	virtual const char* GetTableName(void) const = 0;
-	virtual int          GetTableId(void) const = 0;
-	virtual int             GetNumStrings(void) const = 0;
-	virtual int             GetMaxStrings(void) const = 0;
-	virtual int             GetEntryBits(void) const = 0;
-
-	// Networking
-	virtual void            SetTick(int tick) = 0;
-	virtual bool            ChangedSinceTick(int tick) const = 0;
-
-	// Accessors (length -1 means don't change user data if string already exits)
-	virtual int             AddString(bool bIsServer, const char* value, int length = -1, const void* userdata = 0) = 0;
-
-	virtual const char* GetString(int stringNumber) = 0;
-	virtual void            SetStringUserData(int stringNumber, int length, const void* userdata) = 0;
-	virtual const void* GetStringUserData(int stringNumber, int* length) = 0;
-	virtual int             FindStringIndex(char const* string) = 0; // returns INVALID_STRING_INDEX if not found
-};
-
-INetworkStringTable* m_pModelPrecacheTable = nullptr;
-
-const unsigned short INVALID_STRING_INDEX = (unsigned short)-1;
-
 bool PrecacheModel(const char* szModelName)
 {
-	class CNetworkStringTableContainer
-	{
-	public:
-		INetworkStringTable* FindTable(const char* tableName)
-		{
-			typedef INetworkStringTable* (__thiscall* oFindTable)(PVOID, const char*);
-			return Get_vFunction< oFindTable >(this, 3)(this, tableName);
-		}
-	};
+	static auto ClientStringTableContainer = Interfaces::GetInterface("engine.dll", "VEngineClientStringTable001"); assert(ClientStringTableContainer);
 
-	static auto ClientStringTableContainer = (CNetworkStringTableContainer*)Interfaces::GetInterface("engine.dll", "VEngineClientStringTable001"); assert(ClientStringTableContainer);
+	static auto FindTable = Get_vFunction<void* (__thiscall*)(void*, const char*) >(ClientStringTableContainer, 3);
 
-	if (m_pModelPrecacheTable = ClientStringTableContainer->FindTable("modelprecache"); m_pModelPrecacheTable)
+	if (void* m_pModelPrecacheTable = FindTable(ClientStringTableContainer, "modelprecache"); m_pModelPrecacheTable)
 	{
-		m_pModelPrecacheTable->AddString(false, szModelName);
+		static auto AddString = Get_vFunction<int(__thiscall*)(void*, bool, const char*, int, const void*) >(m_pModelPrecacheTable, 8);
+
+		AddString(m_pModelPrecacheTable, false, szModelName, -1, 0);
 	}
 
 	return true;
@@ -537,14 +499,7 @@ std::string ReplaceString(std::string subject, const std::string& search, const 
 	return subject;
 }
 
-bool IntersectRayWithOBB
-(
-	const Vector& vecRayStart, 
-	const Vector& vecRayDelta,
-	const matrix3x4& matOBBToWorld,
-	const Vector& vecOBBMins,
-	const Vector& vecOBBMaxs
-) noexcept
+bool IntersectRayWithOBB(const Vector& vecRayStart, const Vector& vecRayDelta, const matrix3x4& matOBBToWorld, const Vector& vecOBBMins, const Vector& vecOBBMaxs) noexcept
 {
 
 
@@ -619,42 +574,6 @@ bool IntersectRayWithOBB
 
 
 	return true;
-}
-
-FORCEINLINE vec_t DotProduct(const Vector& a, const Vector& b)
-{
-	CHECK_VALID(a);
-	CHECK_VALID(b);
-	return(a.x * b.x + a.y * b.y + a.z * b.z);
-}
-
-std::optional<Vector> GetIntersectionPoint(const Vector& start, const Vector& end, const Vector& mins, const Vector& maxs, float radius)
-{
-	auto sphereRayIntersection = [start, end, radius](auto&& center) -> std::optional<Vector>
-	{
-		auto direction = (end - start).Normalize();
-
-		auto q = center - start;
-		auto v = DotProduct(q, direction);
-		auto d = radius * radius - (q.LengthSqr() - v * v);
-
-		if (d < FLT_EPSILON)
-			return {};
-
-		return start + direction * (v - std::sqrt(d));
-	};
-
-	auto delta = (maxs - mins).Normalize();
-	for (size_t i{}; i < std::floor(mins.DistTo(maxs)); ++i)
-	{
-		if (auto intersection = sphereRayIntersection(mins + delta * float(i)); intersection)
-			return intersection;
-	}
-
-	if (auto intersection = sphereRayIntersection(maxs); intersection)
-		return intersection;
-
-	return {};
 }
 
 bool FindStringCS(std::string data, std::string toSearch)
