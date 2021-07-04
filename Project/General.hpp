@@ -941,6 +941,8 @@ float PointScale = 0.03f; bool __fastcall Hooked_FireEventIntern(void* pThis, vo
 
 					if (Menu::Get.Visuals.KillEffect_Type == 1)
 					{
+						static auto FX_Tesla = reinterpret_cast<void(__cdecl*)(const  CTeslaInfo&)>(Tools::FindPattern("client.dll", "8B 7B 08 FF 77 18") - 0x24);
+
 						FX_Tesla(teslaInfo);
 
 						DispatchEffect("csblood", data);
