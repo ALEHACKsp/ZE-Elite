@@ -23,8 +23,6 @@ struct BoundingBox
 
 	float x1, y1;
 
-	Vector vertices[8];
-
 	BoundingBox(CBaseEntity* Entity) noexcept
 	{
 		int width, height;
@@ -47,17 +45,19 @@ struct BoundingBox
 								i & 2 ? maxs.y : mins.y,
 								i & 4 ? maxs.z : mins.z };
 
-			if (!WorldToScreen(point.Transform(Entity->GetRgflCoordinateFrame()), vertices[i]))
+			Vector Screen;
+
+			if (!WorldToScreen(point.Transform(Entity->GetRgflCoordinateFrame()), Screen))
 			{
 				valid = false;
 
 				return;
 			}
 
-			x0 = min(x0, vertices[i].x);
-			y0 = min(y0, vertices[i].y);
-			x1 = max(x1, vertices[i].x);
-			y1 = max(y1, vertices[i].y);
+			x0 = min(x0, Screen.x);
+			y0 = min(y0, Screen.y);
+			x1 = max(x1, Screen.x);
+			y1 = max(y1, Screen.y);
 		}
 
 		valid = true;
