@@ -382,8 +382,6 @@ struct DynamicBoundingBox
 
 	float x1, y1;
 
-	Vector vertices[8];
-
 	DynamicBoundingBox(CBaseEntity* Entity) noexcept
 	{
 		valid = false;
@@ -406,22 +404,22 @@ struct DynamicBoundingBox
 		const auto studio = ModelInfo->GetStudiomodel(model);
 		if (!studio) return;
 
-		int HitboxSetIndex = *(int*)((DWORD)studio + 0xB0);
-		if (!HitboxSetIndex)
+		auto pStudioHdr = ModelInfo->GetStudiomodel(model);
+		if (!pStudioHdr)
 			return;
 
-		mstudiohitboxset_t* pSet = (mstudiohitboxset_t*)(((PBYTE)studio) + HitboxSetIndex);
-
-		if (!pSet) return;
+		auto pHitboxSet = pStudioHdr->GetHitboxSet(Entity->GetHitboxSet());
+		if (!pHitboxSet)
+			return;
 
 		matrix3x4 matrix[128];
 
 		if (!Entity->SetupBones(matrix, 128, 0x00000100, Globals->curtime))
 			return;
 
-		for (auto i = pSet->numhitboxes; i--; ) {
+		for (auto i = pHitboxSet->numhitboxes; i--; ) {
 
-			if (auto HitBox = pSet->GetHitbox(i); HitBox)
+			if (auto HitBox = pHitboxSet->GetHitbox(i); HitBox)
 			{
 				auto maxs = HitBox->bbmax;
 
@@ -433,13 +431,15 @@ struct DynamicBoundingBox
 										i & 2 ? maxs.y : mins.y,
 										i & 4 ? maxs.z : mins.z };
 
-					if (!WorldToScreen(point.Transform(matrix[HitBox->bone]), vertices[i])) return;
+					Vector Screen;
 
-					x0 = min(x0, vertices[i].x);
-					x1 = max(x1, vertices[i].x);
+					if (!WorldToScreen(point.Transform(matrix[HitBox->bone]), Screen)) return;
 
-					y0 = min(y0, vertices[i].y);
-					y1 = max(y1, vertices[i].y);
+					x0 = min(x0, Screen.x);
+					x1 = max(x1, Screen.x);
+
+					y0 = min(y0, Screen.y);
+					y1 = max(y1, Screen.y);
 				}
 			}
 		}
@@ -533,19 +533,16 @@ void Esp::Render() noexcept
 					{
 						DynamicBoundingBox DynamicBBox{ Entity };
 
-						if (!DynamicBBox)
-							continue;
+						BoundingBox BBox{ Entity };
 
-						BoundingBox bbox{ Entity };
-
-						if (!bbox)
+						if (!BBox)
 							continue;
 
 						Box(DynamicBBox);
 						Skeleton(Entity);
-						Name(bbox, Entity);
-						Health(bbox, Entity);
-						SnapLine(bbox, Entity);
+						Name(BBox, Entity);
+						Health(BBox, Entity);
+						SnapLine(BBox, Entity);
 						Weapon(Entity->GetAbsOrigin(), Entity);
 					}
 				}
@@ -880,7 +877,7 @@ void UpdateThirdPerson()
 
 	Input->m_fCameraInThirdPerson = Menu::Get.Misc.m_vecCameraOffset;
 
-	m_vecCameraOffset.z = (float)Menu::Get.Misc.m_vecCameraOffset;
+	m_vecCameraOffset.z = static_cast<float>(Menu::Get.Misc.m_vecCameraOffset);
 }
 
 static auto GameResources() -> C_PlayerResource*
@@ -941,8 +938,6 @@ inline bool IsValidID(int size, int& ID, bool reset_if_not_valid)
 	return RetV;
 }
 
-char Backup_Of_Scope_Len_Bytes[4];
-
 void OnLevelInit()
 {
 	/*if (static auto host_state_worldbrush = (worldbrushdata_t**)(*(void**)(Tools::FindPattern("engine.dll", "8B 0D ? ? ? ? 03 F6") + 0x2)); *host_state_worldbrush)
@@ -979,13 +974,7 @@ void OnLevelInit()
 		size_t bytes
 	);
 
-	extern char SkyBoxName[64]; extern int SkyBoxIndex; extern char NewScopePath[MAX_PATH];;
-
-	if (!IsValidID(SkyBoxes.size(), SkyBoxIndex, 1)) assert(0 && "SkyBoxIndex Got Invalid Index");
-	if (!IsValidID(ScopeOverlays.size(), Menu::Get.Visuals.ScopeLen, 1)) assert(0 && "ScopeLen Got Invalid Index");
-	if (!IsValidID(HitSounds.size(), Menu::Get.Visuals.HitSound, 1)) assert(0 && "HitSound Got Invalid Index");
-	if (!IsValidID(HitmarkerOverlays.size(), Menu::Get.Visuals.Overlay, 1)) assert(0 && "Overlay Got Invalid Index");
-	if (!IsValidID(TrailMaterials.size(), Menu::Get.Visuals.Trails.SpriteTexture, 1)) assert(0 && "SpriteTexture Got Invalid Index");
+	extern char SkyBoxName[64]; extern int SkyBoxIndex;
 
 	if (static auto Fog_Enable(Cvar->FindVar("Fog_Enable")); Fog_Enable)
 		Fog_Enable->SetMemValue(!Menu::Get.Visuals.NoFog);
@@ -1032,12 +1021,6 @@ void OnLevelInit()
 		snd_musicvolume->SetMemValue(Menu::Get.Misc.Sounds.MusicVolume * 0.01f);
 	}
 
-	static auto CHudScope_Init = reinterpret_cast<void(__thiscall*)(void*)>(
-		Tools::FindPattern("client.dll", "56 8B F1 8B 0D ? ? ? ? 6A 00 8B 01")); assert(CHudScope_Init);
-
-	static auto Scope_Len_path = reinterpret_cast<BYTE*>(
-		Tools::FindPattern("client.dll", "89 46 3C 8B 0D ? ? ? ?") + 0xE); assert(Scope_Len_path);
-
 	[[maybe_unused]] static bool Once = [&]() {
 		
 		if (auto cl_downloadfilter(Cvar->FindVar("cl_downloadfilter")); cl_downloadfilter)
@@ -1047,7 +1030,11 @@ void OnLevelInit()
 			cl_downloadfilter->SetValue("all");
 		}
 
-		mmcopy(Backup_Of_Scope_Len_Bytes, Scope_Len_path, 4);
+		if (!IsValidID(SkyBoxes.size(), SkyBoxIndex, 1)) assert(0 && "SkyBoxIndex Got Invalid Index");
+		if (!IsValidID(ScopeOverlays.size(), Menu::Get.Visuals.ScopeLen, 1)) assert(0 && "ScopeLen Got Invalid Index");
+		if (!IsValidID(HitSounds.size(), Menu::Get.Visuals.HitSound, 1)) assert(0 && "HitSound Got Invalid Index");
+		if (!IsValidID(HitmarkerOverlays.size(), Menu::Get.Visuals.Overlay, 1)) assert(0 && "Overlay Got Invalid Index");
+		if (!IsValidID(TrailMaterials.size(), Menu::Get.Visuals.Trails.SpriteTexture, 1)) assert(0 && "SpriteTexture Got Invalid Index");
 
 		return 1;
 	}();
@@ -1060,32 +1047,8 @@ void OnLevelInit()
 
 		pLocal->GetNightVisionAlpha() = pLocal->IsNightVisionOn() = Menu::Get.Colors.General.Nightvision.a();
 
-		if (ScopeOverlays.size() > 1)
-		{
-			if (Menu::Get.Visuals.ScopeLen == 0)
-			{
-				mmcopy(Scope_Len_path, Backup_Of_Scope_Len_Bytes, 4);
-			}
-			else
-			{
-				snprintf(NewScopePath, sizeof NewScopePath, "%s", (std::string("overlays/Scopes/") + ScopeOverlays[Menu::Get.Visuals.ScopeLen]).c_str());
-
-				static auto Protection_Backup{ TickCount };
-
-				VirtualProtect(Scope_Len_path, sizeof(void*), PAGE_EXECUTE_READWRITE, &Protection_Backup);
-
-				*(void**)Scope_Len_path = &NewScopePath;
-
-				VirtualProtect(Scope_Len_path, sizeof(void*), Protection_Backup, nullptr);
-			}
-
-			if (HudScope)
-				CHudScope_Init(HudScope);
-
-			mmcopy(Scope_Len_path, Backup_Of_Scope_Len_Bytes, 4);
-		}
+		void UpdateScopeLens(); UpdateScopeLens();
 		
-
 		static auto sv_skyname(Cvar->FindVar("sv_skyname"));
 
 		switch (SkyBoxIndex)
