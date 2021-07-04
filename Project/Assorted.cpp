@@ -134,7 +134,7 @@ int FindAndReturnV(std::vector<std::string>& vector, const char* item) noexcept
 	return 0;
 }
 
-void Precache_materials_and_models(HMODULE DLL) noexcept {
+void Precache_Custom_Stuff(HMODULE DLL) noexcept {
 
 	char ThisDll[MAX_PATH];
 
