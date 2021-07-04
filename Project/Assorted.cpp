@@ -22,7 +22,7 @@ void mmcopy
 	size_t bytes
 );
 
-void UTIL_TraceLine(const Vector& vecAbsStart, const Vector& vecAbsEnd, unsigned int mask, const CBaseEntity* ignore, int collisionGroup, trace_t* ptr)
+void UTIL_TraceLine(const Vector& vecAbsStart, const Vector& vecAbsEnd, unsigned int mask, const CBaseEntity* ignore, int collisionGroup, trace_t* ptr) noexcept
 {
 	static auto Original_UTIL_TraceLine = reinterpret_cast<decltype(&UTIL_TraceLine)>(
 		CallableFromRelative(Tools::FindPattern("client.dll", "E8 ? ? ? ? 83 C4 18 8B 06")));
@@ -30,7 +30,7 @@ void UTIL_TraceLine(const Vector& vecAbsStart, const Vector& vecAbsEnd, unsigned
 	Original_UTIL_TraceLine(vecAbsStart, vecAbsEnd, mask, ignore, collisionGroup, ptr);
 }
 
-void DrawBeamd(Vector src, Vector end, Color color)
+void DrawBeamd(Vector src, Vector end, Color color) noexcept
 {
 	static constexpr auto& TracersVars = Menu::Get.Visuals.Tracers;
 
@@ -61,7 +61,7 @@ void DrawBeamd(Vector src, Vector end, Color color)
 	Beam_t* myBeam = Beams->CreateBeamPoints(beamInfo);
 }
 
-void HitMarkerOnPaint()
+void HitMarkerOnPaint() noexcept
 {
 	if (Menu::Get.General.Panic || !Menu::Get.Visuals.Hitmarker.HM_Enabled)
 	{
@@ -107,7 +107,7 @@ void HitMarkerOnPaint()
 	}
 }
 
-bool PrecacheModel(const char* szModelName)
+bool PrecacheModel(const char* szModelName) noexcept
 {
 	static auto ClientStringTableContainer = Interfaces::GetInterface("engine.dll", "VEngineClientStringTable001"); assert(ClientStringTableContainer);
 
@@ -123,46 +123,7 @@ bool PrecacheModel(const char* szModelName)
 	return true;
 }
 
-template<class T>
-T remove_extension(T const& filename)
-{
-	typename T::size_type const p(filename.find_last_of('.'));
-	return p > 0 && p != T::npos ? filename.substr(0, p) : filename;
-}
-
-const char* WeaponNames[]
-{
-	"ak47",
-	"aug",
-	"awp",
-	"deagle",
-	"elite",
-	"famas",
-	"fiveseven",
-	"flashbang",
-	"g3sg1",
-	"galil",
-	"glock",
-	"hegrenade",
-	"knife",
-	"m249",
-	"m3",
-	"m4a1",
-	"mac10",
-	"mp5navy",
-	"p228",
-	"p90",
-	"scout",
-	"sg550",
-	"sg552",
-	"smokegrenade",
-	"tmp",
-	"ump45",
-	"usp",
-	"xm1014"
-};
-
-int FindAndReturnV(std::vector<std::string>& vector, const char* item)
+int FindAndReturnV(std::vector<std::string>& vector, const char* item) noexcept
 {
 	for (auto i = 0; i < vector.size(); i++)
 	{
@@ -173,245 +134,247 @@ int FindAndReturnV(std::vector<std::string>& vector, const char* item)
 	return 0;
 }
 
-void Precache_materials_and_models() {
-
-	HMODULE hm = NULL;
+void Precache_materials_and_models(HMODULE DLL) noexcept {
 
 	char ThisDll[MAX_PATH];
 
-	GetCurrentDirectory(MAX_PATH, DirectoryPath);
-
-	if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&Precache_materials_and_models, &hm))
+	if (GetCurrentDirectory(MAX_PATH, DirectoryPath) && GetModuleFileName(DLL, ThisDll, sizeof(ThisDll)))
 	{
-		if (GetModuleFileName(hm, ThisDll, sizeof(ThisDll)))
+		char MyDll[MAX_PATH];
+
+		for (auto i = strlen(ThisDll); i > 0; i--)
 		{
-			char MyDll[MAX_PATH];
-
-			for (auto i = strlen(ThisDll); i > 0; i--)
+			if (ThisDll[i] == '\\' || ThisDll[i] == '/')
 			{
-				if (ThisDll[i] == '\\' || ThisDll[i] == '/')
+				snprintf(MyDll, i + 1, "%s", ThisDll);
+
+				std::filesystem::path SourceFile = std::string(MyDll).append("\\cstrike");
+
+				if (BOOL DirectoryExists(LPCTSTR szPath); !DirectoryExists(std::string(MyDll).append("\\cstrike").c_str()))
 				{
-					snprintf(MyDll, i + 1, "%s", ThisDll);
-
-					std::filesystem::path SourceFile = std::string(MyDll).append("\\cstrike");
-
-					if (BOOL DirectoryExists(LPCTSTR szPath); !DirectoryExists(std::string(MyDll).append("\\cstrike").c_str())) 
-					{
-						ColoredConMsg(Color::Red(), "[ERROR]: cstrike is not in same direction"); break;
-					}
-
-					std::filesystem::path TargetParent = DirectoryPath;
-
-					auto target = TargetParent / SourceFile.filename();
-
-					std::filesystem::create_directories(TargetParent); // Recursively create target directory if not existing.
-
-					std::filesystem::copy(SourceFile, target, std::filesystem::copy_options::skip_existing | std::filesystem::copy_options::recursive);
-
-					std::string Trials_Mat_Path = std::string(DirectoryPath).append("\\cstrike\\materials\\sprites\\trails");
-
-					for (const auto& entry : std::filesystem::directory_iterator(Trials_Mat_Path))
-					{
-						auto FilePath = entry.path().string();
-
-						if (auto FPath = FilePath.c_str(); strstr(FPath, ".vmt"))
-						{
-							if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
-							{
-								char ThisFile[64];
-
-								snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
-
-								TrailMaterials.push_back(remove_extension(std::string(ThisFile)));
-							}
-						}
-					}
-
-					std::string Skyboxs_Mat_Path = std::string(DirectoryPath).append("\\cstrike\\materials\\skybox");
-
-					for (const auto& entry : std::filesystem::directory_iterator(Skyboxs_Mat_Path))
-					{
-						auto FilePath = entry.path().string();
-
-						if (auto FPath = FilePath.c_str(); strstr(FPath, "bk.vmt"))
-						{
-							if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
-							{
-								char ThisFile[64];
-
-								snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
-
-								if (auto Found = std::string(ThisFile).find("bk.vmt"); Found != std::string::npos)
-								{
-									char Skybox[64];
-
-									snprintf(Skybox, Found + 1, "%s", ThisFile);
-
-									SkyBoxes.push_back(Skybox);
-								}
-							}
-						}
-					}
-
-					std::string Models_Path = std::string(DirectoryPath).append("\\cstrike\\models\\weapons");
-
-					for (const auto& entry : std::filesystem::directory_iterator(Models_Path))
-					{
-						auto FilePath = entry.path().string();
-
-						if (std::filesystem::status(FilePath).type() == std::filesystem::file_type::directory)
-						{
-							char WeaponName[64];
-
-							if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
-							{
-								snprintf(WeaponName, sizeof WeaponName, "%s", (const char*)&FilePath[Found + 1]);
-
-								GameModels.push_back(SC_ModelInfo(WeaponName));
-
-								GameModels[GameModels.size() - 1].models.push_back("Default");
-							}
-
-							for (const auto& entry : std::filesystem::directory_iterator(FilePath))
-							{
-								auto FilePath = entry.path().string();
-
-								if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
-								{
-									char ThisFile[64];
-
-									snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
-
-									if (auto Found = std::string(ThisFile).find(".mdl"); Found != std::string::npos)
-									{
-										char model[64];
-
-										snprintf(model, Found + 1, "%s", ThisFile);
-
-										GameModels[GameModels.size() - 1].models.push_back(model);
-									}
-								}
-							}
-						}
-					}
-
-					std::string Scopes_Mat_Path = std::string(DirectoryPath).append("\\cstrike\\materials\\overlays\\Scopes");
-
-					ScopeOverlays.push_back(std::string("Default"));
-
-					for (const auto& entry : std::filesystem::directory_iterator(Scopes_Mat_Path))
-					{
-						auto FilePath = entry.path().string();
-
-						if (auto FPath = FilePath.c_str(); strstr(FPath, ".vmt"))
-						{
-							if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
-							{
-								char ThisFile[64];
-
-								snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
-
-								if (auto Found = std::string(ThisFile).find(".vmt"); Found != std::string::npos)
-								{
-									char Scope[64];
-
-									snprintf(Scope, Found + 1, "%s", ThisFile);
-
-									ScopeOverlays.push_back(Scope);
-								}
-							}
-						}
-					}
-
-					static auto Audio_GetWaveDuration = reinterpret_cast<float(__cdecl*)(const char*)>(
-						Tools::FindPattern("engine.dll", "55 8B EC 81 EC ? ? ? ? 56 8B 75 08 8D 4D D4"));
-
-					std::string Sounds_Path = std::string(DirectoryPath).append("\\cstrike\\sound\\ZE-Elite");
-
-					for (const auto& entry : std::filesystem::directory_iterator(Sounds_Path))
-					{
-						auto FilePath = entry.path().string();
-
-						if (auto FPath = FilePath.c_str(); strstr(FPath, ".wav"))
-						{
-							if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
-							{
-								char ThisFile[64];
-
-								snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
-
-								if (auto Found = std::string(ThisFile).find(".wav"); Found != std::string::npos)
-								{
-									char Sound[64];
-
-									snprintf(Sound, Found + 1, "%s", ThisFile);
-
-									SoundList.push_back({});
-
-									auto Duration = Audio_GetWaveDuration(std::string("ZE-Elite\\").append(ThisFile).c_str());
-
-									SoundList[SoundList.size() - 1].Push(Sound, 0, Duration);
-								}
-							}
-						}
-					}
-
-					std::string Hitmarker_Overlays_Path = std::string(DirectoryPath).append("\\cstrike\\materials\\overlays\\hitmarkers");
-
-					for (const auto& entry : std::filesystem::directory_iterator(Hitmarker_Overlays_Path))
-					{
-						auto FilePath = entry.path().string();
-
-						if (auto FPath = FilePath.c_str(); strstr(FPath, ".vmt"))
-						{
-							if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
-							{
-								char ThisFile[64];
-
-								snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
-
-								if (auto Found = std::string(ThisFile).find(".vmt"); Found != std::string::npos)
-								{
-									char Overlay[64];
-
-									snprintf(Overlay, Found + 1, "%s", ThisFile);
-
-									HitmarkerOverlays.push_back(Overlay);
-								}
-							}
-						}
-					}
-
-					HitSounds.push_back("Off");
-
-					std::string Hitmarker_Sounds_Path = std::string(DirectoryPath).append("\\cstrike\\sound\\HitSounds");
-
-					for (const auto& entry : std::filesystem::directory_iterator(Hitmarker_Sounds_Path))
-					{
-						auto FilePath = entry.path().string();
-
-						if (auto FPath = FilePath.c_str(); strstr(FPath, ".wav"))
-						{
-							if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
-							{
-								char ThisFile[64];
-
-								snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
-
-								if (auto Found = std::string(ThisFile).find(".wav"); Found != std::string::npos)
-								{
-									char Sound[64];
-
-									snprintf(Sound, Found + 1, "%s", ThisFile);
-
-									HitSounds.push_back(Sound);
-								}
-							}
-						}
-					}
-
-					break;
+					ColoredConMsg(Color::Red(), "[ERROR]: cstrike is not in same direction"); break;
 				}
+
+				std::filesystem::path TargetParent = DirectoryPath;
+
+				auto target = TargetParent / SourceFile.filename();
+
+				std::filesystem::create_directories(TargetParent);
+
+				std::filesystem::copy(SourceFile, target, std::filesystem::copy_options::skip_existing | std::filesystem::copy_options::recursive);
+
+				std::string Trials_Mat_Path = std::string(DirectoryPath).append("\\cstrike\\materials\\sprites\\trails");
+
+				for (const auto& entry : std::filesystem::directory_iterator(Trials_Mat_Path))
+				{
+					auto FilePath = entry.path().string();
+
+					if (auto FPath = FilePath.c_str(); strstr(FPath, ".vmt"))
+					{
+						if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
+						{
+							char ThisFile[64];
+
+							snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
+
+							constexpr auto RemoveExtension = [](const char* FileName)
+							{
+								const std::string filename = FileName;
+
+								const size_t p = filename.find_last_of('.');
+
+								return p > 0 && p != std::string::npos ? filename.substr(0, p) : filename;
+							};
+
+							TrailMaterials.push_back(RemoveExtension(ThisFile));
+						}
+					}
+				}
+
+				std::string Skyboxs_Mat_Path = std::string(DirectoryPath).append("\\cstrike\\materials\\skybox");
+
+				for (const auto& entry : std::filesystem::directory_iterator(Skyboxs_Mat_Path))
+				{
+					auto FilePath = entry.path().string();
+
+					if (auto FPath = FilePath.c_str(); strstr(FPath, "bk.vmt"))
+					{
+						if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
+						{
+							char ThisFile[64];
+
+							snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
+
+							if (auto Found = std::string(ThisFile).find("bk.vmt"); Found != std::string::npos)
+							{
+								char Skybox[64];
+
+								snprintf(Skybox, Found + 1, "%s", ThisFile);
+
+								SkyBoxes.push_back(Skybox);
+							}
+						}
+					}
+				}
+
+				std::string Models_Path = std::string(DirectoryPath).append("\\cstrike\\models\\weapons");
+
+				for (const auto& entry : std::filesystem::directory_iterator(Models_Path))
+				{
+					auto FilePath = entry.path().string();
+
+					if (std::filesystem::status(FilePath).type() == std::filesystem::file_type::directory)
+					{
+						char WeaponName[64];
+
+						if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
+						{
+							snprintf(WeaponName, sizeof WeaponName, "%s", (const char*)&FilePath[Found + 1]);
+
+							GameModels.push_back(SC_ModelInfo(WeaponName));
+
+							GameModels[GameModels.size() - 1].models.push_back("Default");
+						}
+
+						for (const auto& entry : std::filesystem::directory_iterator(FilePath))
+						{
+							auto FilePath = entry.path().string();
+
+							if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
+							{
+								char ThisFile[64];
+
+								snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
+
+								if (auto Found = std::string(ThisFile).find(".mdl"); Found != std::string::npos)
+								{
+									char model[64];
+
+									snprintf(model, Found + 1, "%s", ThisFile);
+
+									GameModels[GameModels.size() - 1].models.push_back(model);
+								}
+							}
+						}
+					}
+				}
+
+				std::string Scopes_Mat_Path = std::string(DirectoryPath).append("\\cstrike\\materials\\overlays\\Scopes");
+
+				ScopeOverlays.push_back(std::string("Default"));
+
+				for (const auto& entry : std::filesystem::directory_iterator(Scopes_Mat_Path))
+				{
+					auto FilePath = entry.path().string();
+
+					if (auto FPath = FilePath.c_str(); strstr(FPath, ".vmt"))
+					{
+						if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
+						{
+							char ThisFile[64];
+
+							snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
+
+							if (auto Found = std::string(ThisFile).find(".vmt"); Found != std::string::npos)
+							{
+								char Scope[64];
+
+								snprintf(Scope, Found + 1, "%s", ThisFile);
+
+								ScopeOverlays.push_back(Scope);
+							}
+						}
+					}
+				}
+
+				static auto Audio_GetWaveDuration = reinterpret_cast<float(__cdecl*)(const char*)>(
+					Tools::FindPattern("engine.dll", "55 8B EC 81 EC ? ? ? ? 56 8B 75 08 8D 4D D4"));
+
+				std::string Sounds_Path = std::string(DirectoryPath).append("\\cstrike\\sound\\ZE-Elite");
+
+				for (const auto& entry : std::filesystem::directory_iterator(Sounds_Path))
+				{
+					auto FilePath = entry.path().string();
+
+					if (auto FPath = FilePath.c_str(); strstr(FPath, ".wav"))
+					{
+						if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
+						{
+							char ThisFile[64];
+
+							snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
+
+							if (auto Found = std::string(ThisFile).find(".wav"); Found != std::string::npos)
+							{
+								char Sound[64];
+
+								snprintf(Sound, Found + 1, "%s", ThisFile);
+
+								SoundList.push_back({});
+
+								auto Duration = Audio_GetWaveDuration(std::string("ZE-Elite\\").append(ThisFile).c_str());
+
+								SoundList[SoundList.size() - 1].Push(Sound, 0, Duration);
+							}
+						}
+					}
+				}
+
+				std::string Hitmarker_Overlays_Path = std::string(DirectoryPath).append("\\cstrike\\materials\\overlays\\hitmarkers");
+
+				for (const auto& entry : std::filesystem::directory_iterator(Hitmarker_Overlays_Path))
+				{
+					auto FilePath = entry.path().string();
+
+					if (auto FPath = FilePath.c_str(); strstr(FPath, ".vmt"))
+					{
+						if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
+						{
+							char ThisFile[64];
+
+							snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
+
+							if (auto Found = std::string(ThisFile).find(".vmt"); Found != std::string::npos)
+							{
+								char Overlay[64];
+
+								snprintf(Overlay, Found + 1, "%s", ThisFile);
+
+								HitmarkerOverlays.push_back(Overlay);
+							}
+						}
+					}
+				}
+
+				HitSounds.push_back("Off");
+
+				std::string Hitmarker_Sounds_Path = std::string(DirectoryPath).append("\\cstrike\\sound\\HitSounds");
+
+				for (const auto& entry : std::filesystem::directory_iterator(Hitmarker_Sounds_Path))
+				{
+					auto FilePath = entry.path().string();
+
+					if (auto FPath = FilePath.c_str(); strstr(FPath, ".wav"))
+					{
+						if (auto Found = FilePath.find_last_of("\\"); Found != std::string::npos)
+						{
+							char ThisFile[64];
+
+							snprintf(ThisFile, sizeof ThisFile, "%s", (const char*)&FilePath[Found + 1]);
+
+							if (auto Found = std::string(ThisFile).find(".wav"); Found != std::string::npos)
+							{
+								char Sound[64];
+
+								snprintf(Sound, Found + 1, "%s", ThisFile);
+
+								HitSounds.push_back(Sound);
+							}
+						}
+					}
+				}
+
+				break;
 			}
 		}
 	}
@@ -429,7 +392,7 @@ void Precache_materials_and_models() {
 
 char NEW_Disconnect_Msg[100];
 
-void Set_DisConnection_Msg(const char* Message, bool Reset)
+void Set_DisConnection_Msg(const char* Message, bool Reset) noexcept
 {
 	static auto Location = reinterpret_cast<BYTE*>(
 		Tools::FindPattern("engine.dll", "B9 ? ? ? ? 8B 02") + 1);
@@ -459,7 +422,7 @@ void Set_DisConnection_Msg(const char* Message, bool Reset)
 	}
 }
 
-void SetClanTag(const char* tag)
+void SetClanTag(const char* tag) noexcept
 {
 	static auto Kv_Init_Name = reinterpret_cast<void* (__thiscall*)(void*, const char*)>(
 		CallableFromRelative(Tools::FindPattern("engine.dll", "E8 ? ? ? ? 8B F8 EB 02 33 FF 53")));
@@ -486,7 +449,7 @@ void SetClanTag(const char* tag)
 }
 
 
-std::string ReplaceString(std::string subject, const std::string& search, const std::string& replace)
+std::string ReplaceString(std::string subject, const std::string& search, const std::string& replace) noexcept
 {
 	size_t pos = 0;
 
@@ -576,7 +539,7 @@ bool IntersectRayWithOBB(const Vector& vecRayStart, const Vector& vecRayDelta, c
 	return true;
 }
 
-bool FindStringCS(std::string data, std::string toSearch)
+bool FindStringCS(std::string data, std::string toSearch) noexcept
 {
 	std::transform(data.begin(), data.end(), data.begin(), ::tolower);
 
