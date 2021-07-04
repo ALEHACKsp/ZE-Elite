@@ -112,6 +112,12 @@ inline constexpr const char* LayoutsNames[]
 	"Triple Horizontal"
 };
 
+inline std::vector<std::string> Killmessages = 
+{
+	"LOL, you died like a chicken",
+	"$nick deserved to be killed" 
+};
+
 inline Vector MultipointVectors[] = {
 	Vector(0,0,0), Vector(0,0,1.5),Vector(0,0,3),Vector(0,0,4), Vector(0,0,-2), Vector(0,0,-4), Vector(0,0,4.8),
 	Vector(0,0,5), Vector(0,0,5.4), Vector(0,3,0), Vector(3,0,0),Vector(-3,0,0),Vector(0,-3,0), Vector(0,2,4.2),
