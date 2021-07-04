@@ -228,19 +228,6 @@ static void TriggerBot(CBaseEntity* pLocal, CUserCmd* cmd) noexcept {
 										return;
 									}
 								}
-
-								/*Vector mins, maxs;
-
-								Math::VectorTransform(box->bbmin, matrix[box->bone], mins);
-
-								Math::VectorTransform(box->bbmax, matrix[box->bone], maxs);
-
-								if (auto GetIntersection = GetIntersectionPoint(vec_start, vec_end, mins, maxs, box->m_flRadius); GetIntersection)
-								{
-									SendButton(IN_ATTACK);
-
-									return;
-								}*/
 							}
 
 							return;
@@ -516,51 +503,38 @@ void CircleStrafe(CBaseEntity* pLocal, CUserCmd* cmd) noexcept
 
 void StrafeOptimizer(CBaseEntity* pLocal, CUserCmd* cmd)
 {
-	if (!Menu::Get.Misc.StrafeOptimizer.Enabled)
-		return;
+	static auto m_yaw = Cvar->FindVar("m_yaw");
 
-	__int8 Optimization_Time = 0;
+	static auto sensitivity = Cvar->FindVar("sensitivity");
 
-	static auto m_yaw{ Cvar->FindVar("m_yaw") };
+	static float Previous_View_Angles_Y = cmd->viewangles.y;
 
-	static auto sensitivity{ Cvar->FindVar("sensitivity") };
-
-	if (cmd->forwardmove == 0)
+	if (constexpr static auto& StrafeOptimizer = Menu::Get.Misc.StrafeOptimizer; StrafeOptimizer.Enabled)
 	{
-		if (pLocal->OnGround() && IsButtonPressed(IN_JUMP))
+		if (cmd->forwardmove == 0 && IsButtonPressed(IN_JUMP)) if (auto Velocity = pLocal->GetVelocity(); Velocity.Length2D() > StrafeOptimizer.Required_Speed)
 		{
-			Optimization_Time = 1;
-		}
-	}
+			Prediction->Update(ClientState->GetDeltaTick(), ClientState->GetDeltaTick() > 0, ClientState->last_command_ack, ClientState->lastoutgoingcommand + ClientState->chokedcommands);
 
-	static float Previous_View_Angles_Y = cmd->viewangles[1];
+			float Mouse_Yaw_Factor = m_yaw->GetFloat();
 
-	if (Optimization_Time == 1)
-	{
-		Prediction->Update(ClientState->GetDeltaTick(), ClientState->GetDeltaTick() > 0, ClientState->last_command_ack, ClientState->lastoutgoingcommand + ClientState->chokedcommands);
+			float Mouse_Sensitivity = sensitivity->GetFloat();
 
-		float Mouse_Sensitivity = sensitivity->GetFloat();
+			float Mouse_Yaw_Step = Mouse_Sensitivity * Mouse_Yaw_Factor;
 
-		float Mouse_Yaw_Step = Mouse_Sensitivity * m_yaw->GetFloat();
-
-		auto Velocity = pLocal->GetVelocity();
-
-		float Strafe_Angle = remainderf(cmd->viewangles[1] - atan2f(Velocity.y, Velocity.x) * 180 / float(M_PI), 360) * Menu::Get.Misc.StrafeOptimizer.Desired_Gain / 100;
-
-		if (Velocity.Length2D() >= Menu::Get.Misc.StrafeOptimizer.Required_Speed)
-		{
 			if (cmd->sidemove < 0)
 			{
 				if (Previous_View_Angles_Y - cmd->viewangles[1] < 0)
 				{
+					float Strafe_Angle = remainderf(cmd->viewangles[1] - atan2f(Velocity[1], Velocity[0]) * 180 / M_PI, 360) * StrafeOptimizer.Desired_Gain / 100;
+
 					if (Strafe_Angle < -Mouse_Yaw_Step)
 					{
-						if (Strafe_Angle < -Menu::Get.Misc.StrafeOptimizer.Greatest_Possible_Strafe_Angle)
+						if (Strafe_Angle < -StrafeOptimizer.Greatest_Possible_Strafe_Angle)
 						{
-							Strafe_Angle = -Menu::Get.Misc.StrafeOptimizer.Greatest_Possible_Strafe_Angle;
+							Strafe_Angle = -StrafeOptimizer.Greatest_Possible_Strafe_Angle;
 						}
 
-						float Previous_View_Angles_Y = cmd->viewangles[1];
+						Previous_View_Angles_Y = cmd->viewangles[1];
 
 						cmd->viewangles[1] = remainderf(cmd->viewangles[1] - Mouse_Yaw_Step * roundf(Strafe_Angle / Mouse_Yaw_Step), 360);
 
@@ -576,14 +550,16 @@ void StrafeOptimizer(CBaseEntity* pLocal, CUserCmd* cmd)
 				{
 					if (Previous_View_Angles_Y - cmd->viewangles[1] > 0)
 					{
+						float Strafe_Angle = remainderf(cmd->viewangles[1] - atan2f(Velocity[1], Velocity[0]) * 180 / M_PI, 360) * StrafeOptimizer.Desired_Gain / 100;
+
 						if (Strafe_Angle > Mouse_Yaw_Step)
 						{
-							if (Strafe_Angle > Menu::Get.Misc.StrafeOptimizer.Greatest_Possible_Strafe_Angle)
+							if (Strafe_Angle > StrafeOptimizer.Greatest_Possible_Strafe_Angle)
 							{
-								Strafe_Angle = Menu::Get.Misc.StrafeOptimizer.Greatest_Possible_Strafe_Angle;
+								Strafe_Angle = StrafeOptimizer.Greatest_Possible_Strafe_Angle;
 							}
 
-							float Previous_View_Angles_Y = cmd->viewangles[1];
+							Previous_View_Angles_Y = cmd->viewangles[1];
 
 							cmd->viewangles[1] = remainderf(cmd->viewangles[1] - Mouse_Yaw_Step * roundf(Strafe_Angle / Mouse_Yaw_Step), 360);
 
@@ -596,9 +572,8 @@ void StrafeOptimizer(CBaseEntity* pLocal, CUserCmd* cmd)
 			}
 		}
 
+		Previous_View_Angles_Y = cmd->viewangles[1];
 	}
-
-	Previous_View_Angles_Y = cmd->viewangles[1];
 }
 
 static const bool NoRecoil(CBaseEntity* pLocal, QAngle& Angle) noexcept {
