@@ -5,27 +5,25 @@
 #include <optional>
 #include "Defintions.h"
 
-extern void HitMarkerOnPaint();
+extern void HitMarkerOnPaint() noexcept;
 
-extern void SetClanTag(const char* tag);
+extern void SetClanTag(const char* tag) noexcept;
 
-extern void Precache_materials_and_models();
+extern bool PrecacheModel(const char* szModelName) noexcept;
 
-extern void FX_Tesla(const CTeslaInfo& teslaInfo);
+extern void Precache_materials_and_models(HMODULE DLL) noexcept;
 
-extern bool PrecacheModel(const char* szModelName);
+extern void DrawBeamd(Vector src, Vector end, Color color) noexcept;
 
-extern void Set_DisConnection_Msg(const char* Message, bool Reset = false);
+extern bool FindStringCS(std::string data, std::string toSearch) noexcept;
 
-extern void DrawBeamd(Vector src, Vector end, Color color);
+extern void Set_DisConnection_Msg(const char* Message, bool Reset = false) noexcept;
 
-extern bool FindStringCS(std::string data, std::string toSearch);
+extern std::string ReplaceString(std::string subject, const std::string& search, const std::string& replace) noexcept;
 
-extern std::string ReplaceString(std::string subject, const std::string& search, const std::string& replace);
+extern void UTIL_TraceLine(const Vector& vecAbsStart, const Vector& vecAbsEnd, unsigned int mask, const CBaseEntity* ignore, int collisionGroup, trace_t* ptr) noexcept;
 
-extern std::optional<Vector> GetIntersectionPoint(const Vector& start, const Vector& end, const Vector& mins, const Vector& maxs, float radius);
-
-extern void UTIL_TraceLine(const Vector& vecAbsStart, const Vector& vecAbsEnd, unsigned int mask, const CBaseEntity* ignore, int collisionGroup, trace_t* ptr);
+bool IntersectRayWithOBB(const Vector& vecRayStart, const Vector& vecRayDelta, const matrix3x4& matOBBToWorld, const Vector& vecOBBMins, const Vector& vecOBBMaxs) noexcept;
 
 extern void UTIL_ClipTraceToPlayers
 (
@@ -34,15 +32,6 @@ extern void UTIL_ClipTraceToPlayers
 	unsigned int mask,
 	ITraceFilter* filter,
 	trace_t* tr
-);
-
-bool IntersectRayWithOBB
-(
-	const Vector& vecRayStart,
-	const Vector& vecRayDelta,
-	const matrix3x4& matOBBToWorld,
-	const Vector& vecOBBMins,
-	const Vector& vecOBBMaxs
 ) noexcept;
 
 extern float _flHurtTime;
@@ -60,7 +49,7 @@ public:
 
 extern void* CLC_ListenEvents_Table;
 
-inline __declspec(naked) void __cdecl Invoke_NET_SetConVar(void* pfn, const char* cvar, const char* value)
+inline __declspec(naked) void __cdecl Invoke_NET_SetConVar(void* pfn, const char* cvar, const char* value) noexcept
 {
 	__asm
 	{
@@ -75,7 +64,7 @@ inline __declspec(naked) void __cdecl Invoke_NET_SetConVar(void* pfn, const char
 	}
 }
 
-inline void NET_Set_ConVar(const char* cvar, const char* value)
+inline void NET_Set_ConVar(const char* cvar, const char* value) noexcept
 {
 	static void* pvSetConVar = (void*)(Tools::FindPattern("engine.dll", "56 57 8D 4D D4"));
 
