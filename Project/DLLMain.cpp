@@ -3,7 +3,6 @@
 #include <fstream>
 #include <intrin.h>
 #include "include.h"
-#include "GameEvents.h"
 #include "ClientEntityListener.h"
 #include "ImGui/imgui_impl_dx9.h"
 #include "ImGui/imgui_impl_win32.h"
@@ -11,7 +10,6 @@
 using namespace std;
 
 CUserCmd* GlobalVars::cmd{ nullptr };
-
 
 DWORD WINAPI Main_Function(void* DLL)
 {
@@ -25,7 +23,7 @@ DWORD WINAPI Main_Function(void* DLL)
 
 	while (!(GetModuleHandleA("serverbrowser.dll")))Sleep(200);
 
-	Interfaces::Initialize(); Offsets(BaseClientDLL->GetAllClasses()); Hooks::Initialize();
+	Interfaces::Initialize(); Offsets(BaseClientDLL->GetAllClasses()); Hooks::Initialize((HMODULE)DLL);
 
 	ClientEntityListner::Singleton()->Initialize();
 
