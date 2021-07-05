@@ -702,6 +702,8 @@ bool __stdcall Hooked_ProcessStringCmd(NET_StringCmd* msg)
 	static auto Original(reinterpret_cast<bool(__stdcall*)(void*)>(
 		ProcessStringCmd->Original));
 
+	// don't let server execute commands in your console.
+
 	return true;
 }
 
