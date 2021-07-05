@@ -753,10 +753,6 @@ float PointScale = 0.03f; bool __fastcall Hooked_FireEventIntern(void* pThis, vo
 {
 	static auto Original = reinterpret_cast<bool(__thiscall*)(void*, void*, bool, bool)>(FireEventIntern->Original);
 
-	extern float PointScale;
-
-	extern std::vector<std::string> Killmessages;
-
 	if (auto pLocal = CBaseEntity::GetLocalPlayer(); pLocal && event && !Menu::Get.General.Panic) {
 
 		auto EventName = event->GetName();
@@ -1055,14 +1051,11 @@ bool __fastcall Hooked_GetCvarValue(void* ECX, void* EDX, SVC_GetCvarValue* msg)
 	return true;
 }
 
-void* CLC_ListenEvents_Table;
+CLC_ListenEvents* CLC_ListenEvents_Table;
 
-void __stdcall Hooked_WriteListenEventList(PVOID msg) noexcept
+void __stdcall Hooked_WriteListenEventList(CLC_ListenEvents* msg) noexcept
 {
 	static auto Original = reinterpret_cast<void(__thiscall*)(PVOID, PVOID)>(WriteListenEventList->Original);
-
-	//static auto GetEventDescriptor = reinterpret_cast<CGameEventDescriptor * (__thiscall*)(PVOID, const char*)>(
-		//Tools::FindPattern("engine.dll", "8B 5D 08 85 DB 74 5E") - 0x4);
 
 	Original(EventManager, msg);
 
