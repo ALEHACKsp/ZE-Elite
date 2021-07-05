@@ -81,8 +81,6 @@ void Initialize_Loactions() noexcept {
 
 	CLC_RespondCvarValue_Table = *(CLC_RespondCvarValue**)(Tools::FindPattern("engine.dll", "8B 01 52 8B 40 34") - 0x1E);
 
-	CL_QueueDownload = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC F7 05 94"), Hooked_CL_QueueDownload, 7);
-
 	SetViewModel = new DetourHookInfo(Tools::FindPattern("client.dll", "C2 04 00 56 57 8B F9") + 0x3, Hooked_SetViewModel, 4);
 
 	ReadWavFile = new DetourHookInfo(Tools::FindPattern("engine.dll", "51 56 68 ? ? ? ? FF 75 08") - 0x3, Hooked_ReadWavFile, 4);
@@ -114,6 +112,8 @@ void Initialize_Loactions() noexcept {
 	DrawSpriteModel = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("client.dll", "E8 ? ? ? ? 83 C4 38 83 FE 03")), Hooked_DrawSpriteModel, 2);
 
 	OnScreenSizeChanged = new DetourHookInfo(Tools::FindPattern("vguimatsurface.dll", "50 64 89 25 ? ? ? ? 83 EC 10 56") - 0x10, Hooked_OnScreenSizeChanged, 4);
+
+	CL_QueueDownload = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("engine.dll", "E8 ? ? ? ? 83 C4 04 8B 8B ? ? ? ?")), Hooked_CL_QueueDownload, 7);
 
 	CSteam3Client_InitiateConnection = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 83 EC 10 8B 45 1C"), Hooked_CSteam3Client_InitiateConnection, 0);
 
