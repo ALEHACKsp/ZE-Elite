@@ -1214,7 +1214,7 @@ void OnUnload()
 				}
 			}
 			
-			SpriteEntity->Remove();
+			if(SpriteEntity) SpriteEntity->Remove();
 		}
 	}
 
@@ -1270,4 +1270,3 @@ void DamageIndicator::Paint(CBaseEntity* pLocal)
 
 	RenderText(Width - 40 , Height - 155, Menu::Get.Colors.General.DamageIndicator, Esp::Others[1], Text);
 }
-
