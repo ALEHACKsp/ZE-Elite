@@ -476,7 +476,7 @@ void Esp::Render() noexcept
 				DamageIndicator::Paint(pLocal);
 			}
 
-			HitMarkerOnPaint();
+			Hit_Marker_On_Paint();
 
 			//RenderDynamiclights(pLocal->GetVecOrigin());
 
