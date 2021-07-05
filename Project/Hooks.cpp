@@ -85,11 +85,11 @@ void Initialize_Loactions() noexcept {
 
 	ReadWavFile = new DetourHookInfo(Tools::FindPattern("engine.dll", "51 56 68 ? ? ? ? FF 75 08") - 0x3, Hooked_ReadWavFile, 4);
 
-	C_ParticleSmokeGrenade = new DetourHookInfo(Tools::FindPattern("client.dll", "EB D7 5D") + 0x6, Hooked_SmokeGrenade_Start, 3);
-
 	CheckWhitelist = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 83 3D ? ? ? ? ? 7E 5E"), Hooked_CheckWhitelist, 4);
 
 	CalcViewModelView = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 83 EC 24 8B 55 10"), Hooked_CalcViewModelView, 0);
+
+	ConsistencyCheck = new DetourHookInfo(Tools::FindPattern("engine.dll", "81 EC A0 02 ? ? 53 8B D9") - 0x3, Hooked_ConsistencyCheck, 3);
 
 	FireEventIntern = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 83 EC 34 53 8B 5D 08 57"), Hooked_FireEventIntern, 0);
 
@@ -99,13 +99,13 @@ void Initialize_Loactions() noexcept {
 
 	SimulateEntities = new DetourHookInfo(Tools::FindPattern("client.dll", "83 EC 10 8B 0D ? ? ? ? 53 56") - 0x3, Hooked_SimulateEntities, 0);
 
-	ConsistencyCheck = new DetourHookInfo(Tools::FindPattern("engine.dll", "81 EC ? ? ? ? 53 8B D9 89 5D F4") - 0x3, Hooked_ConsistencyCheck, 3);
-
 	GetCvarValue = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 81 EC ? ? ? ? 56 57 8B 7D 08 89 4D FC"), Hooked_GetCvarValue, 3);
 
 	CheckCRCs = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("engine.dll", "E8 ? ? ? ? 83 C4 04 84 C0 75 21")), Hooked_CheckCRCs, 0);
 
 	ProcessFixAngle = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 8B 45 08 83 EC 08 F3 0F 10 15 ? ? ? ?"), Hooked_ProcessFixAngle, 0);
+
+	C_ParticleSmokeGrenade = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 81 EC 00 01 ? ? 56 57 8B F9"), Hooked_SmokeGrenade_Start, 3);
 
 	ProcessMuzzleFlashEvent = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 83 EC 68 53 56 57 8B F9"), Hooked_ProcessMuzzleFlashEvent, 0);
 
