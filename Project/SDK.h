@@ -22,6 +22,7 @@
 #include "IVEngineClient.h"
 #include "IEngineTrace.h"
 #include "IMaterialVar.h"
+#include "netmessages.h"
 #include "FindPattern.h"
 #include "IRenderView.h"
 #include "InputSystem.h"
