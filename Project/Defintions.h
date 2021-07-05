@@ -65,7 +65,7 @@ static auto funcname = [](Color& Col,const char* name = #funcname) \
 
 #define GetModelName(model) ModelInfo->GetMdlName(model)
 
-#define ChangeName(name) NET_Set_ConVar("name",name)
+#define ChangeName(name) NET_SetConVar("name",name)
 
 #define MakeItPositive(Value) sqrtf(Value * Value)
 
@@ -473,7 +473,7 @@ typedef enum
 #define MAX_WEAPON_AMMO_NAME		32
 
 
-//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//========= Copyright Â© 1996-2005, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: 
 //
