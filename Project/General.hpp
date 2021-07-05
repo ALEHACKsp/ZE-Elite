@@ -1033,10 +1033,12 @@ bool __fastcall Hooked_GetCvarValue(void* ECX, void* EDX, SVC_GetCvarValue* msg)
 		{
 			returnMsg.m_szCvarValue = DesiredConVarsValue.at(i).GetValue();
 
-			returnMsg.m_eStatusCode = (EQueryCvarValueStatus)DesiredConVarsValue.at(i).GetStatus(); break;
+			returnMsg.m_eStatusCode = (EQueryCvarValueStatus)DesiredConVarsValue.at(i).GetStatus(); 
+			
 #ifdef SafetyMode
 			HasDesiredValue = true;
 #endif
+			break;
 		}
 	}
 
