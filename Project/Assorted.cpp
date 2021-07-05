@@ -61,7 +61,7 @@ void DrawBeamd(Vector src, Vector end, Color color) noexcept
 	Beam_t* myBeam = Beams->CreateBeamPoints(beamInfo);
 }
 
-void HitMarkerOnPaint() noexcept
+void Hit_Marker_On_Paint() noexcept
 {
 	if (Menu::Get.General.Panic || !Menu::Get.Visuals.Hitmarker.HM_Enabled)
 	{
