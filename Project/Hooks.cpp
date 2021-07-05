@@ -81,6 +81,8 @@ void Initialize_Loactions() noexcept {
 
 	CLC_RespondCvarValue_Table = *(CLC_RespondCvarValue**)(Tools::FindPattern("engine.dll", "8B 01 52 8B 40 34") - 0x1E);
 
+	CL_QueueDownload = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC F7 05 94"), Hooked_CL_QueueDownload, 7);
+
 	SetViewModel = new DetourHookInfo(Tools::FindPattern("client.dll", "C2 04 00 56 57 8B F9") + 0x3, Hooked_SetViewModel, 4);
 
 	ReadWavFile = new DetourHookInfo(Tools::FindPattern("engine.dll", "51 56 68 ? ? ? ? FF 75 08") - 0x3, Hooked_ReadWavFile, 4);
@@ -90,8 +92,6 @@ void Initialize_Loactions() noexcept {
 	CheckWhitelist = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 83 3D ? ? ? ? ? 7E 5E"), Hooked_CheckWhitelist, 4);
 
 	CalcViewModelView = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 83 EC 24 8B 55 10"), Hooked_CalcViewModelView, 0);
-
-	CL_QueueDownload = new DetourHookInfo(Tools::FindPattern("engine.dll", "83 C4 04 84 C0 0F 95 C0") + 0xA, Hooked_CL_QueueDownload, 7);
 
 	FireEventIntern = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 83 EC 34 53 8B 5D 08 57"), Hooked_FireEventIntern, 0);
 
