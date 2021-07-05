@@ -1053,7 +1053,7 @@ bool __fastcall Hooked_GetCvarValue(void* ECX, void* EDX, SVC_GetCvarValue* msg)
 
 CLC_ListenEvents* CLC_ListenEvents_Table;
 
-void __stdcall Hooked_WriteListenEventList(CLC_ListenEvents* msg) noexcept
+void __stdcall Hooked_WriteListenEventList(void* msg) noexcept
 {
 	static auto Original = reinterpret_cast<void(__thiscall*)(PVOID, PVOID)>(WriteListenEventList->Original);
 
