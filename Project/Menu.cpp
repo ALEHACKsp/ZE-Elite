@@ -2336,7 +2336,7 @@ void Menu::Miscellaneous() noexcept
 
 	ImGui::SameLine();
 
-	ImGui::Text("Soundpad");
+	ImGui::Text("Voice Chat");
 
 	ImGui::SameLine();
 
@@ -2344,10 +2344,10 @@ void Menu::Miscellaneous() noexcept
 
 	if (ImGui::Button("...", ImVec2(50, 20)))
 	{
-		ImGui::OpenPopup("Soundpad");
+		ImGui::OpenPopup("Voice Chat");
 	}
 
-	if (ImGui::BeginPopup("Soundpad"))
+	if (ImGui::BeginPopup("Voice Chat"))
 	{
 		static auto Voice_RecordStart = reinterpret_cast<bool(__cdecl*)(const char*, const char*, const char*)>(
 			CallableFromRelative(Tools::FindPattern("engine.dll", "E8 ? ? ? ? 83 C4 0C 5F 5E C3")));
