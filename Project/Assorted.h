@@ -39,14 +39,7 @@ extern bool Overlay_Triggered;
 
 extern std::vector<std::string> HitSounds;
 
-class CLC_ListenEvents
-{
-	char pad[16];
-public:
-	char m_EventArray[64];
-};
-
-extern void* CLC_ListenEvents_Table;
+extern CLC_ListenEvents* CLC_ListenEvents_Table;
 
 inline __declspec(naked) void __cdecl Invoke_NET_SetConVar(void* pfn, const char* cvar, const char* value) noexcept
 {
