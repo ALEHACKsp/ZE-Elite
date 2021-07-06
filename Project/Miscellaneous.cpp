@@ -338,22 +338,6 @@ void KnifeBot(CBaseEntity* pLocal, CUserCmd* cmd, CBaseCombatWeapon* ActiveWeapo
 	}
 }
 
-static void AutoPistol(CBaseEntity* pLocal) noexcept {
-
-	if (Menu::Get.Misc.AutoPisol) {
-
-		if (const auto ActiveWeapon = pLocal->GetActiveWeapon(); ActiveWeapon && !ActiveWeapon->IsFullAuto() && !ActiveWeapon->IsGrenade() && !ActiveWeapon->IsKnife()) {
-
-			const float ServerTime = pLocal->GetTickBase() * Globals->interval_per_tick;
-
-			if (pLocal->GetShotsFired() > 0 || ServerTime <= ActiveWeapon->GetNextPrimaryAttack())
-			{
-				ReleaseButton(IN_ATTACK);
-			}
-		}
-	}
-}
-
 __forceinline float get_ideal_rotation(float speed) {
 	// 15.f is the ideal angle of rotation
 	float factor = RAD2DEG(std::atan2(15.f, speed));
@@ -608,23 +592,23 @@ const bool NoSpread(CBaseEntity* pLocal, CUserCmd* cmd, QAngle& Angle) noexcept 
 
 		Random[3] = RandomFloat(0.f, ActiveWeapon->GetSpread());
 
-		const auto v37 = cosf(Random[0]) * Random[1];
+		const auto v37 = cos(Random[0]) * Random[1];
 
-		const auto v38 = sinf(Random[0]) * Random[1];
+		const auto v38 = sin(Random[0]) * Random[1];
 
-		const auto spread_x = cosf(Random[2]) * Random[3] + v37;
+		const auto spread_x = cos(Random[2]) * Random[3] + v37;
 
-		const auto spread_y = sinf(Random[2]) * Random[3] + v38;
+		const auto spread_y = sin(Random[2]) * Random[3] + v38;
 
-		Vector IN_FORWARD{}, right{}, up{};
+		Vector IN_FORWARD, vecRight, vecUp;
 
-		Math::AngleVectors(Angle, &IN_FORWARD, &right, &up);
+		Math::AngleVectors(Angle, &IN_FORWARD, &vecRight, &vecUp);
 
-		auto vec_dir = IN_FORWARD + (right * spread_x * -1.f) + (up * spread_y * -1.f);
+		auto vecDir = IN_FORWARD + vecRight * spread_x * -1.f + vecUp * spread_y * -1.f;
 
-		VectorNormalize(vec_dir);
+		VectorNormalize(vecDir);
 
-		Math::VectorAngles(-vec_dir, Angle);
+		Math::VectorAngles(-vecDir, Angle);
 
 		Math::ClampAngles(Angle);
 
@@ -634,19 +618,14 @@ const bool NoSpread(CBaseEntity* pLocal, CUserCmd* cmd, QAngle& Angle) noexcept 
 	return false;
 }
 
-static void Bullet_Accuracy(CBaseEntity* pLocal, CUserCmd* cmd, bool& bSendPacket) noexcept {
+void Bullet_Accuracy(CBaseEntity* pLocal, CUserCmd* cmd, bool& bSendPacket) noexcept {
 
 	if (const auto ActiveWeapon = pLocal->GetActiveWeapon(); ActiveWeapon) {
 
-		if (const float ServerTime = pLocal->GetTickBase() * Globals->interval_per_tick;
-			ServerTime > ActiveWeapon->GetNextPrimaryAttack() && ServerTime > pLocal->GetNextAttack()) {
+		if (const float ServerTime = pLocal->GetTickBase() * Globals->interval_per_tick; ServerTime > ActiveWeapon->GetNextPrimaryAttack() && ServerTime > pLocal->GetNextAttack()) {
 
-			const auto SideMove_Backup = cmd->sidemove;
-
-			const auto ViewAngles_Backup = cmd->viewangles;
-
-			const auto ForwardMove_Backup = cmd->forwardmove;
-
+			const auto SideMove_Backup = cmd->sidemove; const auto ViewAngles_Backup = cmd->viewangles; const auto ForwardMove_Backup = cmd->forwardmove;
+			
 			if (ActiveWeapon->GetClip1()) {
 
 				if (IsButtonPressed(IN_ATTACK))
@@ -665,10 +644,6 @@ static void Bullet_Accuracy(CBaseEntity* pLocal, CUserCmd* cmd, bool& bSendPacke
 						Math::CorrectMovement(ViewAngles_Backup, cmd, ForwardMove_Backup, SideMove_Backup);
 					}
 				}
-
-				if (ActiveWeapon->IsKnife()) KnifeBot(pLocal, cmd, ActiveWeapon);
-				else 
-				if(!ActiveWeapon->IsGrenade()) TriggerBot(pLocal, cmd);
 			}
 			else if (ActiveWeapon->IsFullAuto())
 			{
@@ -1015,17 +990,51 @@ static void AntiAfkKick(CUserCmd* cmd) noexcept {
 	}
 }
 
+static void MultiFunc(CBaseEntity* pLocal, CUserCmd* cmd) noexcept
+{
+	if (const auto ActiveWeapon = pLocal->GetActiveWeapon(); ActiveWeapon) 
+	{
+		const auto IsKnife = ActiveWeapon->IsKnife();
+
+		const auto IsGrenade = ActiveWeapon->IsGrenade();
+
+		const float ServerTime = pLocal->GetTickBase() * Globals->interval_per_tick;
+
+		if (ServerTime > ActiveWeapon->GetNextPrimaryAttack() && ServerTime > pLocal->GetNextAttack())
+		{
+			if (IsKnife)
+			{
+				KnifeBot(pLocal, cmd, ActiveWeapon);
+			}
+			else
+			{
+				if (!IsGrenade)
+				{
+					TriggerBot(pLocal, cmd);
+				}
+			}
+		}
+		else if (Menu::Get.Misc.AutoPisol && !ActiveWeapon->IsFullAuto())
+		{
+			if (IsButtonPressed(IN_ATTACK) && pLocal->GetShotsFired() > 0)
+			{
+				ReleaseButton(IN_ATTACK);
+			}
+		}
+	}
+}
+
 void Miscellaneous::Run(CBaseEntity* pLocal, CUserCmd* cmd, bool& bSendPacket) noexcept {
 
 	AntiAfkKick(cmd);
 
 	if (pLocal->IsAlive()) {
 
-		AutoPistol(pLocal);
-
 		FastRun(pLocal, cmd);
 
 		Faststop(pLocal, cmd);
+
+		MultiFunc(pLocal, cmd);
 
 		ClanTagSpammer(pLocal);
 
@@ -1034,8 +1043,6 @@ void Miscellaneous::Run(CBaseEntity* pLocal, CUserCmd* cmd, bool& bSendPacket) n
 		CircleStrafe(pLocal, cmd);
 
 		FastLadderClimb(pLocal, cmd, bSendPacket);
-
-		Bullet_Accuracy(pLocal, cmd, bSendPacket);
 	}
 }
 
