@@ -208,8 +208,9 @@ namespace CHLClient
 
 			void StrafeOptimizer(CBaseEntity*, CUserCmd*); StrafeOptimizer(pLocal, cmd);
 
-			AntiSmac(cmd);
+			void Bullet_Accuracy(CBaseEntity*, CUserCmd*, bool&) noexcept; Bullet_Accuracy(pLocal, cmd, bSendPacket);
 
+			AntiSmac(cmd);
 		}
 
 		verified->m_cmd = *cmd;
