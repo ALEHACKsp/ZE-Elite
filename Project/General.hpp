@@ -666,35 +666,22 @@ void __cdecl Hooked_Warning(char* msg, ...)
 	}
 }
 
-void __cdecl Hooked_CL_QueueDownload(const char* name) noexcept
+void __cdecl Hooked_CL_QueueDownload(const char* Name) noexcept
 {
-	static auto Original(reinterpret_cast<void(__cdecl*)(const char* name)>(
+	static auto Original(reinterpret_cast<void(__cdecl*)(const char*)>(
 		CL_QueueDownload->Original));
 
-	enum
-	{
-		All,
-		No_Sounds,
-		Maps_Only,
-		None,
-		Custom_File_extension,
-	};
+	constexpr static auto& Filter = Menu::Get.Misc.DownloadManagerFilter;
 
-	constexpr auto& Filter = Menu::Get.Misc.DownloadManagerFilter;
+	enum { All, NoSounds, MapsOnly, None, CustomFileExtension };
 
-	const bool IsMap = strstr(name, ".bsp");
-
-	const auto IsSound = strstr(name, ".wav") || strstr(name, ".mp3");
-
-	const bool IsCustomFileExt = strstr(name, Menu::Get.Misc.CustomizeableFiles);
-
-	if (Filter != All && (Filter == None
-		|| (Filter == Maps_Only && !IsMap)
-		|| (Filter == No_Sounds && IsSound))
-		|| (Filter == Custom_File_extension && !IsCustomFileExt))
+	if (Filter == None
+		|| (Filter == MapsOnly && !strstr(Name, ".bsp"))
+		|| (Filter == NoSounds && (strstr(Name, ".wav") || strstr(Name, ".mp3")))
+		|| (Filter == CustomFileExtension && !FindStringCS(std::string(Name), std::string(Menu::Get.Misc.CustomizeableFiles))))
 		return;
 
-	Original(name);
+	Original(Name);
 }
 
 bool __stdcall Hooked_ProcessStringCmd(NET_StringCmd* msg)
