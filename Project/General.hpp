@@ -472,10 +472,6 @@ bool __cdecl Hooked_ReadWavFile
 	int& nSamplesPerSec
 )
 {
-	static auto Original = reinterpret_cast<decltype(&Hooked_ReadWavFile)>(ReadWavFile->Original);
-
-	//return Original(pFilename, pData, nDataBytes, wBitsPerSample, nChannels, nSamplesPerSec);
-
 	std::vector<unsigned char>Temp;
 
 	unsigned char x;
