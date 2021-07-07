@@ -653,22 +653,6 @@ void Bullet_Accuracy(CBaseEntity* pLocal, CUserCmd* cmd, bool& bSendPacket) noex
 	}
 }
 
-const char* GetClanTag(size_t INDEX) noexcept
-{
-	static char buffer[128];
-
-	static auto m_szClan = GetNetVarOffset("DT_CSPlayerResource", "m_szClan", BaseClientDLL->GetAllClasses());
-
-	static auto PlayerResource_t = *(uintptr_t**)(Tools::FindPattern("client.dll", "A1 ? ? ? ? 85 C0 74 2A") + 1);
-
-	for (unsigned int i = 0; i < IM_ARRAYSIZE(buffer); i++)
-	{
-		buffer[i] = *reinterpret_cast<char*>(*PlayerResource_t + m_szClan + INDEX * 16 + i);
-	}
-
-	return buffer;
-}
-
 void ClanTagSpammer(CBaseEntity* pLocal) noexcept
 {
 	static int Stealer_Last_Used_Entity_Index{ 0 };
@@ -685,7 +669,7 @@ void ClanTagSpammer(CBaseEntity* pLocal) noexcept
 
 				if (Entity && Entity NotEquals pLocal && Entity->IsPlayer())
 				{
-					if (auto ClanTag = GetClanTag(Stealer_Last_Used_Entity_Index); ClanTag)
+					if (auto ClanTag = PlayerResource->GetClanTag(Stealer_Last_Used_Entity_Index); ClanTag)
 					{
 						// Check if there is one valid char
 
