@@ -356,6 +356,7 @@ DetourHookInfo* Warning;
 DetourHookInfo* CheckCRCs;
 DetourHookInfo* DrawModel;
 DetourHookInfo* EmitSound;
+DetourHookInfo* GetFgColor;
 DetourHookInfo* ReadWavFile;
 DetourHookInfo* GetCvarValue;
 DetourHookInfo* GetPMaterial;
@@ -460,6 +461,26 @@ char __fastcall Hooked_ApplyConVars(void* ECX, void*, void* Args)
 	static auto Original = reinterpret_cast<void(__thiscall*)(void*, void*)>(ApplyConVars->Original);
 
 	return 1;
+}
+
+Color& __fastcall Hooked_GetFgColor(void* Self, void* EDX, void* UnknownArg)
+{
+	static auto Original = reinterpret_cast<Color & (__thiscall*)(void*, void*)>(GetFgColor->Original);
+
+	static auto GePanelName = Get_vFunction<const char* (__thiscall*)(void*)>(
+		Self, *reinterpret_cast<BYTE*>(Tools::FindPattern("client.dll", "E8 ? ? ? ? EB 94") + 0x15) / 4);
+
+	for (auto& Element : HudList)
+	{
+		if (_stricmp(Element, GePanelName(Self)) == 0)
+		{
+			*(Color*&)UnknownArg = Menu::Get.Colors.General.HudColor;
+
+			return *(Color*&)UnknownArg;
+		}
+	}
+
+	return Original(Self, UnknownArg);
 }
 
 bool __cdecl Hooked_ReadWavFile
