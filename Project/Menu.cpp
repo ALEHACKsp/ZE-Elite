@@ -788,6 +788,10 @@ void Menu::Visuals() noexcept
 
 		PopW();
 
+		CreateColorFunction(Hud);
+
+		Hud(Menu::Get.Colors.General.HudColor);
+
 		CreateColorFunction(World);
 
 		if (World(Menu::Get.Colors.General.World))
