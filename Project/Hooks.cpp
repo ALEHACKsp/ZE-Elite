@@ -103,6 +103,8 @@ void Initialize_Loactions() noexcept {
 
 	CheckCRCs = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("engine.dll", "E8 ? ? ? ? 83 C4 04 84 C0 75 21")), Hooked_CheckCRCs, 0);
 
+	GetFgColor = new DetourHookInfo(CallableFromRelative(Tools::FindPattern("client.dll", "E8 ? ? ? ? 8B 45 08 5D C2 04 00")), Hooked_GetFgColor, 0);
+
 	ProcessFixAngle = new DetourHookInfo(Tools::FindPattern("engine.dll", "55 8B EC 8B 45 08 83 EC 08 F3 0F 10 15 ? ? ? ?"), Hooked_ProcessFixAngle, 0);
 
 	C_ParticleSmokeGrenade = new DetourHookInfo(Tools::FindPattern("client.dll", "55 8B EC 81 EC 00 01 ? ? 56 57 8B F9"), Hooked_SmokeGrenade_Start, 3);
@@ -233,6 +235,8 @@ void Hooks::Uninitialize() noexcept
 	delete EmitSound;
 
 	delete CheckCRCs;
+
+	delete GetFgColor;
 
 	delete ReadWavFile;
 
