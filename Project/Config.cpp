@@ -8,7 +8,7 @@ nlohmann::json j;
 
 extern int SkyBoxIndex;
 
-#define Version 1
+#define Version "1.2"
 
 #define ConfigA(arg1,arg2) {#arg1,arg2}
 
@@ -508,6 +508,7 @@ void Config::SaveConfig()
 			ColorConfigA(Plus_Shape, Menu::Get.Colors.General.Crosshair.Plus_Shape),
 			ColorConfigA(Circle_Shape, Menu::Get.Colors.General.Crosshair.Circle_Shape),
 			ColorConfigA(Fog, Menu::Get.Colors.General.Fog),
+			ColorConfigA(HudColor, Menu::Get.Colors.General.HudColor),
 
 			ColorConfigA(Hitmarker, Menu::Get.Colors.General.Hitmarker),
 
@@ -536,14 +537,14 @@ void Config::SaveConfig()
 		} },
 	};
 
-	std::ofstream o(std::string("ZE\\ZE.v") + std::to_string(Version) + ".json");
+	std::ofstream o(std::string("ZE\\ZE.v") + Version + ".json");
 
 	o << std::setw(4) << j << std::endl;
 }
 
 void Config::LoadConfig()
 {
-	std::ifstream input_file = std::ifstream(std::string("ZE\\ZE.v") + std::to_string(Version) + ".json");
+	std::ifstream input_file = std::ifstream(std::string("ZE\\ZE.v") + Version + ".json");
 
 	if (!input_file.good())
 		return;
@@ -993,6 +994,8 @@ void Config::LoadConfig()
 		LoadColorVar(Tracers,Menu::Get.Colors.General.Tracers, Colors);
 
 		LoadColorVar(Trails,Menu::Get.Colors.General.Trails, Colors);
+
+		LoadColorVar(HudColor, Menu::Get.Colors.General.HudColor, Colors);
 
 		// PlayerEsp
 
