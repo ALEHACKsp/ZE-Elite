@@ -118,6 +118,16 @@ inline std::vector<std::string> Killmessages =
 	"$nick deserved to be killed" 
 };
 
+inline constexpr std::array<const char*, 6>HudList = {
+
+		"HudLocation",
+		"HudHealth",
+		"HudAccount",
+		"HudAmmo",
+		"HudRoundTimer",
+		"HudArmor"
+};
+
 inline Vector MultipointVectors[] = {
 	Vector(0,0,0), Vector(0,0,1.5),Vector(0,0,3),Vector(0,0,4), Vector(0,0,-2), Vector(0,0,-4), Vector(0,0,4.8),
 	Vector(0,0,5), Vector(0,0,5.4), Vector(0,3,0), Vector(3,0,0),Vector(-3,0,0),Vector(0,-3,0), Vector(0,2,4.2),
