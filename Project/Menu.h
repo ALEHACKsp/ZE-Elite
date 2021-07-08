@@ -608,6 +608,9 @@ namespace Menu
 				Color Fog{ 135, 206, 235,255 };
 
 				Color Trails{ Color(255,255,255) };
+
+				Color HudColor{ Color::SkyBlue() };
+
 			}General;
 
 		}Colors;
